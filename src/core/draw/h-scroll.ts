@@ -37,7 +37,7 @@ export class HScroll extends BaseDrawer {
     const {canvasWidth, contentWidth, viewWidth} = state;
     const {canvasHeight} = state;
 
-    let ratio = viewWidth / contentWidth;
+    let ratio = viewWidth / (contentWidth + state.emptyWidth);
     state.hScrollRatio = ratio;
     // console.log(ratio);
     if (ratio < .05) {

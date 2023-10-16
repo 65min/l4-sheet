@@ -9,6 +9,7 @@ import state from '../store/state.ts';
 import headerStore from '../store/header-store.ts';
 import cellStore from '../store/cell-store.ts';
 import config from '../config';
+import {CanvasUtil} from '../utils/canvas-util.ts';
 
 
 export default class EventMousePlugin extends BasePlugin {
@@ -71,6 +72,8 @@ export default class EventMousePlugin extends BasePlugin {
       }
       scroll.vScroll.offsetY = totalOffsetY;
       state.offsetY = totalOffsetY / state.vScrollRatio;
+      state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);
+
       if (state.offsetY > state.contentHeight - state.viewHeight) {
         state.offsetY = state.contentHeight - state.viewHeight;
       }
@@ -123,6 +126,14 @@ export default class EventMousePlugin extends BasePlugin {
     } else if (offsetY > state.rowNum * config.rowHeight - 100) {
       offsetY = state.rowNum * config.rowHeight - 100
     }
+
+    // let emptyHeight = offsetY + state.viewHeight - state.contentHeight;
+    // if (emptyHeight < 0) {
+    //   emptyHeight = 0;
+    // }
+    state.emptyHeight = CanvasUtil.computeEmptyHeight(offsetY);
+
+    console.log(offsetY);
 
     state.offsetY = offsetY
     scroll.vScroll.offsetY = offsetY * state.vScrollRatio;

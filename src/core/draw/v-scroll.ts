@@ -37,7 +37,7 @@ export class VScroll extends BaseDrawer {
     const {contentHeight, viewHeight, canvasHeight} = state;
     const {canvasWidth} = state;
 
-    let ratio = viewHeight / contentHeight;
+    let ratio = viewHeight / (contentHeight + state.emptyHeight);
     // console.log(ratio)
     state.vScrollRatio = ratio;
     // console.log(ratio);

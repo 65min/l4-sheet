@@ -14,7 +14,9 @@ const state = {
   vScrollRatio: 1,
   hScrollRatio: 1,
   offsetX: 0,
-  offsetY: 0
+  offsetY: 0,
+  emptyHeight: 0,
+  emptyWidth: 0
 }
 
 export default state;
