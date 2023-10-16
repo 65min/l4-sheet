@@ -1,0 +1,16 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.l4__toolbar-wrap {
+  height: 64px;
+  background-color: #d1d1d1;
+  & span {
+    font-weight: 700;
+  }
+}
+
+.l4__content-wrap {
+  overflow: hidden;
+}
