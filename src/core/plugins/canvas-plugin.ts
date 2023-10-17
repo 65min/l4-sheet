@@ -121,7 +121,6 @@ export default class CanvasPlugin extends BasePlugin {
     control.cellContent = this.cellContent;
     control.background = this.background;
 
-
     const showScroll = this.showScroll();
     if (showScroll.h) {
       state.vScrollWidth = 16;
@@ -129,9 +128,11 @@ export default class CanvasPlugin extends BasePlugin {
 
       this.hScroll = new HScroll(this.$ctx);
       scroll.hScroll = this.hScroll;
-      const [hScrollBarArea, hScrollArea] = this.hScroll.draw();
+      const [hScrollBarArea, leftBtnArea, rightBtnArea, hScrollArea] = this.hScroll.draw();
       scroll.hScrollBarArea = hScrollBarArea;
       scroll.hScrollArea = hScrollArea;
+      scroll.hScrollLArea = leftBtnArea;
+      scroll.hScrollRArea = rightBtnArea;
     }
     if (showScroll.v) {
       state.hScrollHeight = 16;

@@ -8,7 +8,8 @@ const config = {
   colWidth: 80,
 
   scroll: {
-    color: '#b2dfdb'
+    color: '#b2dfdb',
+    width: 16
   }
 }
 

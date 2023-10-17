@@ -30,7 +30,6 @@ export default class EventMousePlugin extends BasePlugin {
 
     const isInVScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.vScrollBarArea);
     if (isInVScrollBarArea) {
-      console.log('in v bar')
       operate.type = 'scroll-v';
       operate.scrollVState.beginPoint = mousedownPoint;
       operate.scrollVState.initOffsetY = scroll.vScroll.offsetY;
@@ -49,14 +48,16 @@ export default class EventMousePlugin extends BasePlugin {
       if (totalOffsetX < 0) {
         totalOffsetX = 0;
       }
-      if (totalOffsetX > state.contentWidth - state.viewWidth) {
-        totalOffsetX = state.contentWidth - state.viewWidth;
-      }
+      // if (totalOffsetX > state.contentWidth - state.viewWidth) {
+      //   totalOffsetX = state.contentWidth - state.viewWidth;
+      // }
       scroll.hScroll.offsetX = totalOffsetX;
       state.offsetX = totalOffsetX / state.hScrollRatio;
-      if (state.offsetX > state.contentWidth - state.viewWidth) {
-        state.offsetX = state.contentWidth - state.viewWidth;
+      if (state.offsetX > state.contentWidth - 160) {
+        state.offsetX = state.contentWidth - 160;
       }
+      scroll.hScroll.offsetX = state.offsetX * state.hScrollRatio;
+      state.emptyWidth = CanvasUtil.computeEmptyWidth(state.offsetX);
 
       this.refreshView();
     } else if (operate.type === 'scroll-v' && event.button === 0) {
@@ -64,14 +65,19 @@ export default class EventMousePlugin extends BasePlugin {
 
       let totalOffsetY = operate.scrollVState.initOffsetY + operate.scrollVState.endPoint.y - operate.scrollVState.beginPoint.y;
 
+      // if (totalOffsetY > state.contentHeight - state.viewHeight) {
+      //   totalOffsetY = state.contentHeight - state.viewHeight;
+      // }
       if (totalOffsetY < 0) {
         totalOffsetY = 0;
       }
-      if (totalOffsetY > state.contentHeight - state.viewHeight) {
-        totalOffsetY = state.contentHeight - state.viewHeight;
-      }
       scroll.vScroll.offsetY = totalOffsetY;
-      state.offsetY = totalOffsetY / state.vScrollRatio;
+
+      let canvasOffsetY = totalOffsetY / state.vScrollRatio;
+      if (canvasOffsetY > state.contentHeight - 100) {
+        canvasOffsetY = state.contentHeight - 100;
+      }
+      state.offsetY = canvasOffsetY;
       state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);
 
       if (state.offsetY > state.contentHeight - state.viewHeight) {
@@ -79,6 +85,14 @@ export default class EventMousePlugin extends BasePlugin {
       }
 
       this.refreshView();
+    } else {
+      const point = new Point(offsetX, offsetY);
+      scroll.hScroll.hover = AreaUtil.inArea(point, scroll.hScrollBarArea);
+      scroll.hScroll.leftButtonStatus.hover = AreaUtil.inArea(point, scroll.hScrollLArea);
+      scroll.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, scroll.hScrollRArea);
+      scroll.hScroll.draw();
+      scroll.vScroll.hover = AreaUtil.inArea(point, scroll.vScrollBarArea);
+      scroll.vScroll.draw();
     }
   }
 
@@ -108,16 +122,18 @@ export default class EventMousePlugin extends BasePlugin {
 
     headerStore.rowHeaderArea = control.rowHeader.draw();
 
-    const [hScrollBarArea, hScrollArea] = scroll.hScroll.draw();
+    const [hScrollBarArea, leftBtnArea, rightBtnArea, hScrollArea] = scroll.hScroll.draw();
     scroll.hScrollBarArea = hScrollBarArea;
     scroll.hScrollArea = hScrollArea;
+    scroll.hScrollLArea = leftBtnArea;
+    scroll.hScrollRArea = rightBtnArea;
+
     const [vScrollBarArea, vScrollArea] = scroll.vScroll.draw();
     scroll.vScrollBarArea = vScrollBarArea;
     scroll.vScrollArea = vScrollArea;
   }
 
   handleScroll(event: WheelEvent) {
-    // console.log(event);
     const {deltaY} = event;
     let {offsetY} = state;
     offsetY = offsetY + deltaY;
@@ -127,31 +143,84 @@ export default class EventMousePlugin extends BasePlugin {
       offsetY = state.rowNum * config.rowHeight - 100
     }
 
-    // let emptyHeight = offsetY + state.viewHeight - state.contentHeight;
-    // if (emptyHeight < 0) {
-    //   emptyHeight = 0;
-    // }
     state.emptyHeight = CanvasUtil.computeEmptyHeight(offsetY);
-
-    console.log(offsetY);
 
     state.offsetY = offsetY
     scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
     this.refreshView();
   }
 
+  handleMouseover(event: MouseEvent) {
+    const {offsetX, offsetY} = event;
+
+    const mousedownPoint = new Point(offsetX, offsetY);
+    const isInHScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.hScrollBarArea);
+    if (isInHScrollBarArea) {
+      // operate.type = 'scroll-h';
+      // operate.scrollHState.beginPoint = mousedownPoint;
+      // operate.scrollHState.initOffsetX = scroll.hScroll.offsetX;
+      scroll.hScroll.hover = true;
+      scroll.hScroll.draw();
+      return ;
+    }
+
+    const isInVScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.vScrollBarArea);
+    if (isInVScrollBarArea) {
+      // console.log('in v bar')
+      operate.type = 'scroll-v';
+      operate.scrollVState.beginPoint = mousedownPoint;
+      operate.scrollVState.initOffsetY = scroll.vScroll.offsetY;
+      return ;
+    }
+  }
+
+  handleScrollBtn(event: MouseEvent) {
+    const point = new Point(event.offsetX, event.offsetY);
+    const hlBtn = AreaUtil.inArea(point, scroll.hScrollLArea); // 横向左侧按钮
+    const hrBtn = AreaUtil.inArea(point, scroll.hScrollRArea); // 横向右侧按钮
+    if (hlBtn) {
+      // console.log('h scroll left btn click');
+      let {offsetX} = state;
+      offsetX = offsetX - 80;
+      if (offsetX < 0) {
+        offsetX = 0;
+      }
+      scroll.hScroll.offsetX = offsetX * state.hScrollRatio;
+      state.offsetX = offsetX;
+      state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
+
+      this.refreshView();
+    } else if (hrBtn) {
+      let {offsetX} = state;
+      offsetX = offsetX + 80;
+      if (offsetX > state.contentWidth - 160) {
+        offsetX = state.contentWidth - 160
+      }
+      scroll.hScroll.offsetX = offsetX * state.hScrollRatio;
+      state.offsetX = offsetX;
+      state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
+
+      this.refreshView();
+    }
+
+    event.preventDefault();
+  }
+
   init(): void {
     // document.addEventListener('mousemove');
     this.initScrollbar();
+    // this.handleScrollBtn = this.handleScrollBtn.bind(this);
   }
 
   private initScrollbar() {
     this.$target.addEventListener('mousedown', this.handleMousedown);
     document.addEventListener('mousemove', this.handleMousemove)
     document.addEventListener('mouseup', this.handleMouseup)
-    this.$target.addEventListener('mousewheel', (event) => {
-      this.handleScroll(event as WheelEvent);
-    });
+    this.$target.addEventListener('mousewheel', this.handleScroll.bind(this));
+
+    this.$target.addEventListener('mousedown', this.handleScrollBtn.bind(this))
+
+    // this.$target.addEventListener('mouseover', this.handleMouseover)
   }
 
 }
