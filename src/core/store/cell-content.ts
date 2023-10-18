@@ -3,7 +3,10 @@ import {Area} from '../model/area.ts';
 const cellContentArea: Area[][] = null;
 const backgroundArea: Area = null;
 
-export default {
+const cellArea = {
   cellContentArea,
   backgroundArea
-}
+};
+
+// window.cellArea = cellArea;
+export default cellArea;

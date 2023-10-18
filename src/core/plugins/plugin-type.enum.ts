@@ -7,5 +7,8 @@ export enum PluginType {
   Event = 'Event',
   EventClick = 'EventClick',
   EventDrag = 'EventDrag',
-  EventMouse = 'EventMouse'
+  EventMouse = 'EventMouse',
+  EventMouseScrollbar = 'EventMouseScrollbar',
+  EventMouseHeader = 'EventMouseHeader',
+  EventMouseContent = 'EventMouseContent'
 }

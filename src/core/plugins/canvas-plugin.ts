@@ -5,7 +5,7 @@ import {ColHeaderDrawer} from '../draw/col-header.ts';
 import {RowHeaderDrawer} from '../draw/row-header.ts';
 import headerStore from '../store/header.ts';
 import {CellContentDrawer} from '../draw/cell-content.ts';
-import cellStore from '../store/cell-store.ts';
+import cellStore from '../store/cell-content.ts';
 import state from '../store/state.ts';
 import {HScroll} from '../draw/h-scroll.ts';
 import store from '../store';

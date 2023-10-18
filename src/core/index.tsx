@@ -10,6 +10,7 @@ import MouseScrollbarPlugin from './plugins/event/mouse-scrollbar.plugin.ts';
 import store from './store';
 // import KeyboardScrollbarPlugin from './plugins/event/keyboard-scrollbar.plugin.ts';
 import MouseHeaderPlugin from './plugins/event/mouse-header.plugin.ts';
+import MouseContentPlugin from './plugins/event/mouse-content.plugin.ts';
 
 
 export default class Wrap extends BasePlugin {
@@ -35,6 +36,7 @@ export default class Wrap extends BasePlugin {
     this.pluginFactory.add(new DragPlugin(store.$canvas));
     this.pluginFactory.add(new MouseScrollbarPlugin(store.$canvas));
     this.pluginFactory.add(new MouseHeaderPlugin(store.$canvas));
+    this.pluginFactory.add(new MouseContentPlugin(store.$canvas));
 
   }
 

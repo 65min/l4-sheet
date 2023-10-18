@@ -7,14 +7,14 @@ import operate from '../../store/operate.ts';
 import control from '../../store/control.ts';
 import state from '../../store/state.ts';
 import headerStore from '../../store/header.ts';
-import cellStore from '../../store/cell-store.ts';
+import cellStore from '../../store/cell-content.ts';
 import {CanvasUtil} from '../../utils/canvas-util.ts';
 import config from '../../config';
 
 
 export default class MouseScrollbarPlugin extends BasePlugin {
 
-  type = PluginType.EventMouse;
+  type = PluginType.EventMouseScrollbar;
 
   handleMousedown = (event: MouseEvent) => {
     const {offsetX, offsetY} = event;

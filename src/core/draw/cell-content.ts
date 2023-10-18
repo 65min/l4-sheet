@@ -20,9 +20,9 @@ export class CellContentDrawer extends BaseDrawer {
   }
 
   draw(): Area[][] {
-
-    state.offsetX;
-    state.offsetY;
+    //
+    // state.offsetX;
+    // state.offsetY;
 
     this.areas = [];
     this._width = 0;
@@ -68,7 +68,7 @@ export class CellContentDrawer extends BaseDrawer {
         this.$ctx.strokeRect(x + .5, y + .5, config.colWidth, config.rowHeight);
         offsetX = offsetX + config.colWidth;
 
-        this.areas[this.areas.length - 1].push(new Area(offsetX, offsetY, config.colWidth, config.rowHeight));
+        this.areas[this.areas.length - 1].push(new Area(x, y, x + config.colWidth, y + config.rowHeight));
       }
       offsetY = offsetY + config.rowHeight;
     }

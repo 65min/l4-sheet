@@ -3,9 +3,13 @@ import config from '../../config';
 import header from '../../store/header.ts';
 import control from '../../store/control.ts';
 import state from '../../store/state.ts';
+import {PluginType} from '../plugin-type.enum.ts';
 // import store from '../../store';
 
 export default class MouseHeaderPlugin extends BasePlugin {
+
+  type = PluginType.EventMouseHeader;
+
   init(): void {
     this.initHeader();
   }
