@@ -1,18 +1,18 @@
-import BasePlugin from './base-plugin.ts';
-import {PluginType} from './plugin-type.enum.ts';
-import {AreaUtil} from '../utils/area-util.ts';
-import {Point} from '../model/point.ts';
-import scroll from '../store/scroll.ts';
-import operate from '../store/operate.ts';
-import control from '../store/control.ts';
-import state from '../store/state.ts';
-import headerStore from '../store/header-store.ts';
-import cellStore from '../store/cell-store.ts';
-import config from '../config';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import BasePlugin from '../base-plugin.ts';
+import {PluginType} from '../plugin-type.enum.ts';
+import {AreaUtil} from '../../utils/area-util.ts';
+import {Point} from '../../model/point.ts';
+import scroll from '../../store/scroll.ts';
+import operate from '../../store/operate.ts';
+import control from '../../store/control.ts';
+import state from '../../store/state.ts';
+import headerStore from '../../store/header.ts';
+import cellStore from '../../store/cell-store.ts';
+import {CanvasUtil} from '../../utils/canvas-util.ts';
+import config from '../../config';
 
 
-export default class EventMousePlugin extends BasePlugin {
+export default class MouseScrollbarPlugin extends BasePlugin {
 
   type = PluginType.EventMouse;
 
@@ -145,30 +145,6 @@ export default class EventMousePlugin extends BasePlugin {
     this.refreshView();
   }
 
-  handleMouseover(event: MouseEvent) {
-    const {offsetX, offsetY} = event;
-
-    const mousedownPoint = new Point(offsetX, offsetY);
-    const isInHScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.hScrollBarArea);
-    if (isInHScrollBarArea) {
-      // operate.type = 'scroll-h';
-      // operate.scrollHState.beginPoint = mousedownPoint;
-      // operate.scrollHState.initOffsetX = scroll.hScroll.offsetX;
-      scroll.hScroll.hover = true;
-      scroll.hScroll.draw();
-      return ;
-    }
-
-    const isInVScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.vScrollBarArea);
-    if (isInVScrollBarArea) {
-      // console.log('in v bar')
-      operate.type = 'scroll-v';
-      operate.scrollVState.beginPoint = mousedownPoint;
-      operate.scrollVState.initOffsetY = scroll.vScroll.offsetY;
-      return ;
-    }
-  }
-
   handleScrollBtn(event: MouseEvent) {
     const point = new Point(event.offsetX, event.offsetY);
     const hlBtn = AreaUtil.inArea(point, scroll.hScrollLArea); // 横向左侧按钮
@@ -227,9 +203,7 @@ export default class EventMousePlugin extends BasePlugin {
   }
 
   init(): void {
-    // document.addEventListener('mousemove');
     this.initScrollbar();
-    // this.handleScrollBtn = this.handleScrollBtn.bind(this);
   }
 
   private initScrollbar() {
@@ -239,8 +213,6 @@ export default class EventMousePlugin extends BasePlugin {
     this.$target.addEventListener('mousewheel', this.handleScroll.bind(this));
 
     this.$target.addEventListener('mousedown', this.handleScrollBtn.bind(this))
-
-    // this.$target.addEventListener('mouseover', this.handleMouseover)
   }
 
 }

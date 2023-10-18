@@ -5,8 +5,12 @@ const tableHeaderArea: Area = null;
 const colHeaderArea: Area[] = null;
 const rowHeaderArea: Area[] = null;
 
-export default {
+const header = {
   tableHeaderArea,
   colHeaderArea,
   rowHeaderArea
-};
+}
+
+// window.header = header;
+
+export default header;

@@ -1,8 +1,8 @@
-import BasePlugin from './base-plugin.ts';
-import {PluginType} from './plugin-type.enum.ts';
+import BasePlugin from '../base-plugin.ts';
+import {PluginType} from '../plugin-type.enum.ts';
 
 
-export default class EventClickPlugin extends BasePlugin {
+export default class ClickPlugin extends BasePlugin {
 
   type = PluginType.EventClick;
 

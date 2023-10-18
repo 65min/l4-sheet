@@ -90,7 +90,7 @@ export class VScroll extends BaseDrawer {
     // 整个滚动条区域
     this.$ctx.fillStyle = BACKGROUND_COLOR
     // this.$ctx.fillRect(config.rowHeaderWidth, canvasHeight - 16, viewHeight, 16);
-    this.$ctx.fillRect(canvasWidth - config.scroll.width, 0, config.scroll.width, canvasHeight);
+    this.$ctx.fillRect(canvasWidth - config.scroll.width, 1, config.scroll.width, canvasHeight);
 
     // 左按钮 + 右按钮
     CanvasUtil.drawPath(

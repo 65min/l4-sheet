@@ -10,11 +10,21 @@ export class RowHeaderDrawer extends BaseDrawer {
 
   num: number;
 
+  private _hoverIndex: number;
+
   constructor(ctx: CanvasRenderingContext2D, num: number) {
     super(ctx);
     this.num = num;
   }
 
+
+  get hoverIndex(): number {
+    return this._hoverIndex;
+  }
+
+  set hoverIndex(value: number) {
+    this._hoverIndex = value;
+  }
 
   draw(): Area[] {
 
@@ -50,8 +60,11 @@ export class RowHeaderDrawer extends BaseDrawer {
         continue;
       }
 
-      // console.log(`draw ${i + 1}`);
-      this.$ctx.fillStyle = '#e9e9e9';
+      if (i === this.hoverIndex) {
+        this.$ctx.fillStyle = '#e0f2f1';
+      } else {
+        this.$ctx.fillStyle = '#e9e9e9';
+      }
       this.$ctx.fillRect(0, y1, config.rowHeaderWidth, height);
       this.$ctx.strokeStyle = '#aeaeae';
       this.$ctx.lineWidth = .5;
@@ -66,7 +79,7 @@ export class RowHeaderDrawer extends BaseDrawer {
         this.$ctx.fillText(i + 1 + '', .5 + 18, y1 + (y2 - y1) / 2 + 2);
       }
 
-      const area = new Area(0, offsetY, 36, offsetY + config.colHeaderHeight);
+      const area = new Area(0, offsetY, config.rowHeaderWidth, offsetY + config.colHeaderHeight);
       this.areas.push(area);
       offsetY = offsetY + config.rowHeight;
     }

@@ -3,11 +3,13 @@ import ToolbarPlugin from './plugins/toolbar-plugin.ts';
 import BasePlugin from './plugins/base-plugin.ts';
 import {PluginType} from './plugins/plugin-type.enum.ts';
 import CanvasPlugin from './plugins/canvas-plugin.ts';
-import EventClickPlugin from './plugins/event-click-plugin.ts';
+import ClickPlugin from './plugins/event/click.plugin.ts';
 import state from './store/state.ts';
-import EventDragPlugin from './plugins/event-drag-plugin.ts';
-import EventMousePlugin from './plugins/event-mouse-plugin.ts';
+import DragPlugin from './plugins/event/drag.plugin.ts';
+import MouseScrollbarPlugin from './plugins/event/mouse-scrollbar.plugin.ts';
 import store from './store';
+// import KeyboardScrollbarPlugin from './plugins/event/keyboard-scrollbar.plugin.ts';
+import MouseHeaderPlugin from './plugins/event/mouse-header.plugin.ts';
 
 
 export default class Wrap extends BasePlugin {
@@ -29,23 +31,11 @@ export default class Wrap extends BasePlugin {
 
     this.pluginFactory.add(new ToolbarPlugin('.l4__toolbar-wrap'));
     this.pluginFactory.add(new CanvasPlugin('.l4__content-wrap'));
-    this.pluginFactory.add(new EventClickPlugin(store.$canvas));
-    this.pluginFactory.add(new EventDragPlugin(store.$canvas));
-    this.pluginFactory.add(new EventMousePlugin(store.$canvas));
-    // if ()
-    // if (store.viewWidth < store.contentWidth) {
-    // }
+    this.pluginFactory.add(new ClickPlugin(store.$canvas));
+    this.pluginFactory.add(new DragPlugin(store.$canvas));
+    this.pluginFactory.add(new MouseScrollbarPlugin(store.$canvas));
+    this.pluginFactory.add(new MouseHeaderPlugin(store.$canvas));
 
-    // const showScroll = this.showScroll();
-    // if (showScroll.h) {
-    //   state.vScrollWidth = 16;
-    //   state.viewWidth = state.viewWidth - 16;
-    //   this.pluginFactory.add(new HScrollPlugin())
-    // }
-    // if (showScroll.v) {
-    //   state.hScrollHeight = 16;
-    //   state.viewHeight = state.viewHeight - 16;
-    // }
   }
 
   showScroll(): {h: boolean, v: boolean} {

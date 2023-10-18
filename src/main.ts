@@ -1,6 +1,6 @@
 import './style.css'
 
-import initToolbar from './core/toolbar.ts';
+// import initToolbar from './core/toolbar.ts';
 import Wrap from './core';
 
 // document.querySelector<HTMLDivElement>('#app')!.innerHTML = `

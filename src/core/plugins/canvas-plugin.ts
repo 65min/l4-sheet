@@ -3,7 +3,7 @@ import BasePlugin from './base-plugin.ts';
 import {TableHeaderDrawer} from '../draw/table-header.ts';
 import {ColHeaderDrawer} from '../draw/col-header.ts';
 import {RowHeaderDrawer} from '../draw/row-header.ts';
-import headerStore from '../store/header-store.ts';
+import headerStore from '../store/header.ts';
 import {CellContentDrawer} from '../draw/cell-content.ts';
 import cellStore from '../store/cell-store.ts';
 import state from '../store/state.ts';

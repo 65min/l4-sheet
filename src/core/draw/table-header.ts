@@ -1,6 +1,8 @@
 import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
 import config from '../config';
+import {CanvasUtil} from '../utils/canvas-util.ts';
+import {Point} from '../model/point.ts';
 
 export class TableHeaderDrawer extends BaseDrawer {
 
@@ -16,12 +18,17 @@ export class TableHeaderDrawer extends BaseDrawer {
     this.$ctx.lineWidth = .5;
     this.$ctx.strokeRect(.5, .5, config.rowHeaderWidth, 20);
 
-    this.$ctx.fillStyle = '#cccccc';
-    this.$ctx.moveTo(34, 10);
-    this.$ctx.lineTo(34, 18);
-    this.$ctx.lineTo(26, 18);
-    this.$ctx.lineTo(34, 10);
-    this.$ctx.fill();
+    CanvasUtil.drawPath(
+      this.$ctx,
+      [
+        new Point(config.rowHeaderWidth - 2, config.colHeaderHeight - 12),
+        new Point(config.rowHeaderWidth - 2, config.colHeaderHeight - 2),
+        new Point(config.rowHeaderWidth - 12, config.colHeaderHeight - 2),
+      ],
+      {
+        fillStyle: '#bbbbbb'
+      }
+    )
 
     this.area = new Area(0, 0, config.rowHeaderWidth, 20);
     return this.area;

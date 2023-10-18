@@ -1,9 +1,9 @@
-import BasePlugin from './base-plugin.ts';
-import {PluginType} from './plugin-type.enum.ts';
-import store from '../store';
+import BasePlugin from '../base-plugin.ts';
+import {PluginType} from '../plugin-type.enum.ts';
+import store from '../../store';
 
 
-export default class EventDragPlugin extends BasePlugin {
+export default class DragPlugin extends BasePlugin {
 
   type = PluginType.EventDrag;
 
