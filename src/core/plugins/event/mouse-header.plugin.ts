@@ -2,6 +2,7 @@ import BasePlugin from '../base-plugin.ts';
 import config from '../../config';
 import header from '../../store/header.ts';
 import control from '../../store/control.ts';
+import state from '../../store/state.ts';
 // import store from '../../store';
 
 export default class MouseHeaderPlugin extends BasePlugin {
@@ -18,7 +19,7 @@ export default class MouseHeaderPlugin extends BasePlugin {
       const currentHoverIndex = control.colHeader.hoverIndex;
       control.colHeader.hoverIndex = -1;
       let drawFlag = false;
-      if (event.offsetY <= config.colHeaderHeight) {
+      if (event.offsetY <= config.colHeaderHeight && event.offsetX < (config.rowHeaderWidth + state.viewWidth) && event.offsetX > config.rowHeaderWidth) {
         for (let i = 0; i < header.colHeaderArea.length; i++) {
           const area = header.colHeaderArea[i];
           if (!area) {
@@ -47,7 +48,7 @@ export default class MouseHeaderPlugin extends BasePlugin {
       const currentHoverIndex = control.rowHeader.hoverIndex;
       control.rowHeader.hoverIndex = -1;
       let drawFlag = false;
-      if (event.offsetX <= config.rowHeaderWidth) {
+      if (event.offsetX <= config.rowHeaderWidth && event.offsetY < (config.colHeaderHeight + state.viewHeight) && event.offsetY > config.colHeaderHeight) {
         for (let i = 0; i < header.rowHeaderArea.length; i++) {
           const area = header.rowHeaderArea[i];
           if (!area) {
@@ -74,7 +75,15 @@ export default class MouseHeaderPlugin extends BasePlugin {
     }
   }
 
+  handleMouseleaveEvent() {
+    control.colHeader.hoverIndex = -1;
+    control.rowHeader.hoverIndex = -1;
+    control.colHeader.draw();
+    control.rowHeader.draw();
+  }
+
   initHeader() {
-    this.$target.addEventListener('mousemove', this.handleMousemoveEvent)
+    this.$target.addEventListener('mousemove', this.handleMousemoveEvent);
+    this.$target.addEventListener('mouseleave', this.handleMouseleaveEvent);
   }
 }

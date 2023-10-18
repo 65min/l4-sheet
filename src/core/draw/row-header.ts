@@ -79,7 +79,7 @@ export class RowHeaderDrawer extends BaseDrawer {
         this.$ctx.fillText(i + 1 + '', .5 + 18, y1 + (y2 - y1) / 2 + 2);
       }
 
-      const area = new Area(0, offsetY, config.rowHeaderWidth, offsetY + config.colHeaderHeight);
+      const area = new Area(0, y1, config.rowHeaderWidth, y1 + height);
       this.areas.push(area);
       offsetY = offsetY + config.rowHeight;
     }
