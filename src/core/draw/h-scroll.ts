@@ -93,15 +93,11 @@ export class HScroll extends BaseDrawer {
   }
 
   draw(): Area[] {
-    // console.log('draw')
-    if (this.leftButtonStatus.hover) {
-      // debugger;
-    }
+
     const {canvasWidth, canvasHeight, contentWidth, viewWidth} = state;
 
     let ratio = (viewWidth - config.scroll.width + 4) / (contentWidth + state.emptyWidth);
     state.hScrollRatio = ratio;
-    // console.log(ratio);
     if (ratio < .05) {
       ratio = .05;
     }

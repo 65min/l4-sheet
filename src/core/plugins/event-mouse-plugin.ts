@@ -48,9 +48,7 @@ export default class EventMousePlugin extends BasePlugin {
       if (totalOffsetX < 0) {
         totalOffsetX = 0;
       }
-      // if (totalOffsetX > state.contentWidth - state.viewWidth) {
-      //   totalOffsetX = state.contentWidth - state.viewWidth;
-      // }
+
       scroll.hScroll.offsetX = totalOffsetX;
       state.offsetX = totalOffsetX / state.hScrollRatio;
       if (state.offsetX > state.contentWidth - 160) {
@@ -65,24 +63,17 @@ export default class EventMousePlugin extends BasePlugin {
 
       let totalOffsetY = operate.scrollVState.initOffsetY + operate.scrollVState.endPoint.y - operate.scrollVState.beginPoint.y;
 
-      // if (totalOffsetY > state.contentHeight - state.viewHeight) {
-      //   totalOffsetY = state.contentHeight - state.viewHeight;
-      // }
       if (totalOffsetY < 0) {
         totalOffsetY = 0;
       }
+
       scroll.vScroll.offsetY = totalOffsetY;
-
-      let canvasOffsetY = totalOffsetY / state.vScrollRatio;
-      if (canvasOffsetY > state.contentHeight - 100) {
-        canvasOffsetY = state.contentHeight - 100;
+      state.offsetY = totalOffsetY / state.vScrollRatio;
+      if (state.offsetY > state.contentHeight - 100) {
+        state.offsetY = state.contentHeight - 100;
       }
-      state.offsetY = canvasOffsetY;
+      scroll.vScroll.offsetY = state.offsetY * state.vScrollRatio;
       state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);
-
-      if (state.offsetY > state.contentHeight - state.viewHeight) {
-        state.offsetY = state.contentHeight - state.viewHeight;
-      }
 
       this.refreshView();
     } else {
@@ -92,6 +83,8 @@ export default class EventMousePlugin extends BasePlugin {
       scroll.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, scroll.hScrollRArea);
       scroll.hScroll.draw();
       scroll.vScroll.hover = AreaUtil.inArea(point, scroll.vScrollBarArea);
+      scroll.vScroll.leftButtonStatus.hover = AreaUtil.inArea(point, scroll.vScrollLArea);
+      scroll.vScroll.rightButtonStatus.hover = AreaUtil.inArea(point, scroll.vScrollRArea);
       scroll.vScroll.draw();
     }
   }
@@ -122,15 +115,17 @@ export default class EventMousePlugin extends BasePlugin {
 
     headerStore.rowHeaderArea = control.rowHeader.draw();
 
-    const [hScrollBarArea, leftBtnArea, rightBtnArea, hScrollArea] = scroll.hScroll.draw();
+    const [hScrollBarArea, hLeftBtnArea, hRightBtnArea, hScrollArea] = scroll.hScroll.draw();
     scroll.hScrollBarArea = hScrollBarArea;
     scroll.hScrollArea = hScrollArea;
-    scroll.hScrollLArea = leftBtnArea;
-    scroll.hScrollRArea = rightBtnArea;
+    scroll.hScrollLArea = hLeftBtnArea;
+    scroll.hScrollRArea = hRightBtnArea;
 
-    const [vScrollBarArea, vScrollArea] = scroll.vScroll.draw();
+    const [vScrollBarArea, vLeftBtnArea, vRightBtnArea, vScrollArea] = scroll.vScroll.draw();
     scroll.vScrollBarArea = vScrollBarArea;
     scroll.vScrollArea = vScrollArea;
+    scroll.vScrollLArea = vLeftBtnArea;
+    scroll.vScrollRArea = vRightBtnArea;
   }
 
   handleScroll(event: WheelEvent) {
@@ -178,6 +173,8 @@ export default class EventMousePlugin extends BasePlugin {
     const point = new Point(event.offsetX, event.offsetY);
     const hlBtn = AreaUtil.inArea(point, scroll.hScrollLArea); // 横向左侧按钮
     const hrBtn = AreaUtil.inArea(point, scroll.hScrollRArea); // 横向右侧按钮
+    const vlBtn = AreaUtil.inArea(point, scroll.vScrollLArea); // 竖向左侧按钮
+    const vrBtn = AreaUtil.inArea(point, scroll.vScrollRArea); // 竖向右侧按钮
     if (hlBtn) {
       // console.log('h scroll left btn click');
       let {offsetX} = state;
@@ -199,6 +196,29 @@ export default class EventMousePlugin extends BasePlugin {
       scroll.hScroll.offsetX = offsetX * state.hScrollRatio;
       state.offsetX = offsetX;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
+
+      this.refreshView();
+    } else if (vlBtn) {
+      // console.log('h scroll left btn click');
+      let {offsetY} = state;
+      offsetY = offsetY - 100;
+      if (offsetY < 0) {
+        offsetY = 0;
+      }
+      scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
+      state.offsetY = offsetY;
+      state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
+
+      this.refreshView();
+    } else if (vrBtn) {
+      let {offsetY} = state;
+      offsetY = offsetY + 100;
+      if (offsetY > state.contentHeight - 100) {
+        offsetY = state.contentHeight - 100
+      }
+      scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
+      state.offsetY = offsetY;
+      state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
 
       this.refreshView();
     }

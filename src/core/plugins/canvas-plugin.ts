@@ -13,6 +13,7 @@ import scroll from '../store/scroll.ts';
 import {BackgroundDrawer} from '../draw/background.ts';
 import control from '../store/control.ts';
 import {VScroll} from '../draw/v-scroll.ts';
+import config from '../config';
 //
 // (function () {
 //   if (window.customElements.get('l4-canvas') === undefined) {
@@ -123,8 +124,8 @@ export default class CanvasPlugin extends BasePlugin {
 
     const showScroll = this.showScroll();
     if (showScroll.h) {
-      state.vScrollWidth = 16;
-      state.viewWidth = state.viewWidth - 16;
+      state.vScrollWidth = config.scroll.width;
+      state.viewWidth = state.viewWidth - config.scroll.width;
 
       this.hScroll = new HScroll(this.$ctx);
       scroll.hScroll = this.hScroll;
@@ -135,14 +136,16 @@ export default class CanvasPlugin extends BasePlugin {
       scroll.hScrollRArea = rightBtnArea;
     }
     if (showScroll.v) {
-      state.hScrollHeight = 16;
-      state.viewHeight = state.viewHeight - 16;
+      state.hScrollHeight = config.scroll.width;
+      state.viewHeight = state.viewHeight - config.scroll.width;
 
       this.vScroll = new VScroll(this.$ctx);
       scroll.vScroll = this.vScroll;
-      const [vScrollBarArea, vScrollArea] = this.vScroll.draw();
+      const [vScrollBarArea, leftBtnArea, rightBtnArea, vScrollArea] = this.vScroll.draw();
       scroll.vScrollBarArea = vScrollBarArea;
       scroll.vScrollArea = vScrollArea;
+      scroll.vScrollLArea = leftBtnArea;
+      scroll.vScrollRArea = rightBtnArea;
     }
 
   }

@@ -12,9 +12,9 @@ const vScroll: VScroll = null;
 const vScrollArea: Area = null;
 const vScrollBarArea: Area = null;
 const vScrollLArea: Area = null;
-const vScrollRArea: Area = null;
+const vScrollRArea: Area = null
 
-export default {
+const scroll = {
   hScroll,
   hScrollArea,
   hScrollBarArea,
@@ -25,4 +25,6 @@ export default {
   vScrollBarArea,
   vScrollLArea,
   vScrollRArea
-}
+};
+
+export default scroll;
