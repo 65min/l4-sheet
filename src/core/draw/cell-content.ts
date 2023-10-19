@@ -2,7 +2,7 @@ import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 import config from '../config';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import {CanvasUtil} from '../utils/canvas.util.ts';
 import areaStore from '../store/area.store.ts';
 
 export class CellContentDrawer extends BaseDrawer {

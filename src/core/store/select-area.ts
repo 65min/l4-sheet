@@ -2,15 +2,15 @@
 class SelectArea {
   rowIndex: number;
   colIndex: number;
-  selectCell: [number, number];
-  selectAreas: [number, number, number, number][];
+  selectedCell: [number, number];
+  selectedCellAreas: [number, number, number, number][];
 }
 
 const selectArea: SelectArea = {
   rowIndex: -1,
   colIndex: -1,
-  selectCell: [-1, -1],
-  selectAreas: []
+  selectedCell: [-1, -1],
+  selectedCellAreas: []
 }
 // window.selectArea = selectArea;
 export default selectArea;

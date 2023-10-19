@@ -1,7 +1,7 @@
 import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
 import config from '../config';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import {CanvasUtil} from '../utils/canvas.util.ts';
 import {Point} from '../model/point.ts';
 
 export class TableHeaderDrawer extends BaseDrawer {

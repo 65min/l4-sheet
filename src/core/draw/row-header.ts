@@ -2,7 +2,7 @@ import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 import config from '../config';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import {CanvasUtil} from '../utils/canvas.util.ts';
 import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
 
@@ -34,7 +34,7 @@ export class RowHeaderDrawer extends BaseDrawer {
     this.areas = [];
 
     const selectAreaRowIndexes = []
-    selectArea.selectAreas.forEach((sa: [number, number, number, number]) => {
+    selectArea.selectedCellAreas.forEach((sa: [number, number, number, number]) => {
       selectAreaRowIndexes.push([sa[0], sa[2]]);
     });
 

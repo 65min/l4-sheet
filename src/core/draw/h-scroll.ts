@@ -3,7 +3,7 @@ import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 import config from '../config';
 import operate from '../store/operate.ts';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import {CanvasUtil} from '../utils/canvas.util.ts';
 import {Point} from '../model/point.ts';
 import {ButtonStatus} from '../def/button-status.ts';
 

@@ -1,11 +1,11 @@
 import BasePlugin from '../base-plugin.ts';
 import {PluginType} from '../plugin-type.enum.ts';
-import {AreaUtil} from '../../utils/area-util.ts';
+import {AreaUtil} from '../../utils/area.util.ts';
 import {Point} from '../../model/point.ts';
 import operate from '../../store/operate.ts';
 import control from '../../store/control.store.ts';
 import state from '../../store/state.ts';
-import {CanvasUtil} from '../../utils/canvas-util.ts';
+import {CanvasUtil} from '../../utils/canvas.util.ts';
 import config from '../../config';
 import areaStore from '../../store/area.store.ts';
 import selectArea from '../../store/select-area.ts';
@@ -238,7 +238,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
   }
 
   private drawSelectCell() {
-    const [cri, cci] = selectArea.selectCell;
+    const [cri, cci] = selectArea.selectedCell;
     if (cri >= 0 && cci >= 0) {
       // controlStore.cellContent.drawCell(cri, cci);
       controlStore.selectArea.draw();

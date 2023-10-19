@@ -1,7 +1,7 @@
 import BasePlugin from '../base-plugin.ts';
 import store from '../../store';
 import {PluginType} from '../plugin-type.enum.ts';
-import {AreaUtil} from '../../utils/area-util.ts';
+import {AreaUtil} from '../../utils/area.util.ts';
 import {Point} from '../../model/point.ts';
 import config from '../../config';
 import state from '../../store/state.ts';
@@ -63,37 +63,50 @@ export default class MouseContentPlugin extends BasePlugin {
     controlStore.cellContent.drawCell(ri + 1, ci + 1);
   }
 
+  private revertCells(selectCell: [number, number, number, number]) {
+    const [cri, cci] = selectCell;
+    if (cri >= 0 && cci >= 0) {
+      this.drawNearbyCells(cri, cci);
+      controlStore.colHeader.draw();
+      controlStore.rowHeader.draw();
+      const {vScroll, hScroll} = controlStore;
+      if (vScroll) {
+        vScroll.draw();
+      }
+      if (hScroll) {
+        hScroll.draw();
+      }
+    }
+  }
+
   private handleMousedownEvent(event: MouseEvent) {
-    if (!event.ctrlKey) {
-      const cellIndex = this.isEventInCell(event);
-      if (cellIndex) {
-        const [cri, cci] = selectArea.selectCell;
-        if (cri >= 0 && cci >= 0) {
-          this.drawNearbyCells(cri, cci);
-
-          controlStore.colHeader.draw();
-          controlStore.rowHeader.draw();
-          const {vScroll, hScroll} = controlStore;
-          if (vScroll) {
-            vScroll.draw();
-          }
-          if (hScroll) {
-            hScroll.draw();
-          }
+    const cellIndex = this.isEventInCell(event);
+    if (cellIndex) {
+      // const [cri, cci] = selectArea.selectCell;
+      selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
+      selectArea.selectedCellAreas = selectArea.selectedCellAreas || [];
+      if (!event.ctrlKey) {
+        selectArea.selectedCell = cellIndex;
+        selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex]];
+      } else {
+        selectArea.selectedCell = cellIndex;
+        const cellArea: [number, number, number, number] = [...cellIndex, ...cellIndex];
+        const existIndex = selectArea.selectedCellAreas.findIndex(item => item[0] === cellArea[0] && item[1] === cellArea[1] && item[2] === cellArea[2] && item[3] === cellArea[3]);
+        if (existIndex >= 0) {
+          selectArea.selectedCellAreas.splice(existIndex, 1);
+        } else {
+          selectArea.selectedCellAreas.push(cellArea);
         }
-        selectArea.selectCell = cellIndex;
-        selectArea.selectAreas = [[...cellIndex, ...cellIndex]];
-
-        controlStore.selectArea.draw();
-        controlStore.colHeader.draw();
-        controlStore.rowHeader.draw();
-        const {vScroll, hScroll} = controlStore;
-        if (vScroll) {
-          vScroll.draw();
-        }
-        if (hScroll) {
-          hScroll.draw();
-        }
+      }
+      controlStore.selectArea.draw();
+      controlStore.colHeader.draw();
+      controlStore.rowHeader.draw();
+      const {vScroll, hScroll} = controlStore;
+      if (vScroll) {
+        vScroll.draw();
+      }
+      if (hScroll) {
+        hScroll.draw();
       }
     }
   }

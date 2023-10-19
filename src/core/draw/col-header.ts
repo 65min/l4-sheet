@@ -1,9 +1,9 @@
 import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
-import {CommonUtil} from '../utils/common-util.ts';
+import {CommonUtil} from '../utils/common.util.ts';
 import state from '../store/state.ts';
 import config from '../config';
-import {CanvasUtil} from '../utils/canvas-util.ts';
+import {CanvasUtil} from '../utils/canvas.util.ts';
 import areaStore from '../store/area.store.ts';
 import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
@@ -37,7 +37,7 @@ export class ColHeaderDrawer extends BaseDrawer {
     this.areas = [];
 
     const selectAreaColIndexes = []
-    selectArea.selectAreas.forEach((sa: [number, number, number, number]) => {
+    selectArea.selectedCellAreas.forEach((sa: [number, number, number, number]) => {
       selectAreaColIndexes.push([sa[1], sa[3]]);
     });
 

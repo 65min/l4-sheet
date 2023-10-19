@@ -7,7 +7,7 @@ import BasePlugin from './base-plugin.ts';
     const template = document.createElement('template');
     template.innerHTML = `
       <div>
-        aaabbcc
+        L4-Sheet
       </div>
     `;
 
