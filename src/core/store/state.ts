@@ -1,8 +1,8 @@
 
 
 const state = {
-  colNum: 26,
-  rowNum: 20,
+  colNum: 35,
+  rowNum: 1234,
   canvasWidth: 0, // canvas组件宽度
   canvasHeight: 0,
   contentWidth: 0, // 单元格宽度
@@ -18,5 +18,7 @@ const state = {
   emptyHeight: 0,
   emptyWidth: 0
 }
+
+// window.state = state;
 
 export default state;

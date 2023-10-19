@@ -9,16 +9,9 @@ export class TableHeaderDrawer extends BaseDrawer {
   area: Area | undefined;
 
   draw(): Area {
-    // console.log('draw table header')
-    this.$ctx.fillStyle = '#e9e9e9';
-    // this.$ctx.fillRect(.5, .5, 35.5, 19.5);
-    this.$ctx.fillRect(0, 0, config.rowHeaderWidth, 20);
-    this.$ctx.strokeStyle = '#a1a1a1';
+    CanvasUtil.drawRect(this.$ctx, 0, 0, config.rowHeaderWidth, config.colHeaderHeight, {fillStyle: '#e9e9e9', strokeStyle: '#a1a1a1'});
 
-    this.$ctx.lineWidth = .5;
-    this.$ctx.strokeRect(.5, .5, config.rowHeaderWidth, 20);
-
-    CanvasUtil.drawPath(
+    CanvasUtil.fillPath(
       this.$ctx,
       [
         new Point(config.rowHeaderWidth - 2, config.colHeaderHeight - 12),

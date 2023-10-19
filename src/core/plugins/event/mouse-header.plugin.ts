@@ -1,9 +1,10 @@
 import BasePlugin from '../base-plugin.ts';
 import config from '../../config';
-import header from '../../store/header.ts';
-import control from '../../store/control.ts';
+import control from '../../store/control.store.ts';
 import state from '../../store/state.ts';
 import {PluginType} from '../plugin-type.enum.ts';
+import areaStore from '../../store/area.store.ts';
+import controlStore from '../../store/control.store.ts';
 // import store from '../../store';
 
 export default class MouseHeaderPlugin extends BasePlugin {
@@ -24,8 +25,8 @@ export default class MouseHeaderPlugin extends BasePlugin {
       control.colHeader.hoverIndex = -1;
       let drawFlag = false;
       if (event.offsetY <= config.colHeaderHeight && event.offsetX < (config.rowHeaderWidth + state.viewWidth) && event.offsetX > config.rowHeaderWidth) {
-        for (let i = 0; i < header.colHeaderArea.length; i++) {
-          const area = header.colHeaderArea[i];
+        for (let i = 0; i < areaStore.colHeaderArea.length; i++) {
+          const area = areaStore.colHeaderArea[i];
           if (!area) {
             continue;
           }
@@ -53,8 +54,8 @@ export default class MouseHeaderPlugin extends BasePlugin {
       control.rowHeader.hoverIndex = -1;
       let drawFlag = false;
       if (event.offsetX <= config.rowHeaderWidth && event.offsetY < (config.colHeaderHeight + state.viewHeight) && event.offsetY > config.colHeaderHeight) {
-        for (let i = 0; i < header.rowHeaderArea.length; i++) {
-          const area = header.rowHeaderArea[i];
+        for (let i = 0; i < areaStore.rowHeaderArea.length; i++) {
+          const area = areaStore.rowHeaderArea[i];
           if (!area) {
             continue;
           }
@@ -77,6 +78,14 @@ export default class MouseHeaderPlugin extends BasePlugin {
         control.rowHeader.draw();
       }
     }
+
+    const {vScroll, hScroll} = controlStore;
+    if (vScroll) {
+      vScroll.draw();
+    }
+    if (hScroll) {
+      hScroll.draw();
+    }
   }
 
   handleMouseleaveEvent() {
@@ -84,6 +93,12 @@ export default class MouseHeaderPlugin extends BasePlugin {
     control.rowHeader.hoverIndex = -1;
     control.colHeader.draw();
     control.rowHeader.draw();
+    if (control.hScroll) {
+      control.hScroll.draw();
+    }
+    if (control.vScroll) {
+      control.vScroll.draw();
+    }
   }
 
   initHeader() {

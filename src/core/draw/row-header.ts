@@ -2,6 +2,9 @@ import {BaseDrawer} from './base.ts';
 import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 import config from '../config';
+import {CanvasUtil} from '../utils/canvas-util.ts';
+import selectArea from '../store/select-area.ts';
+import {Point} from '../model/point.ts';
 
 
 export class RowHeaderDrawer extends BaseDrawer {
@@ -30,12 +33,13 @@ export class RowHeaderDrawer extends BaseDrawer {
 
     this.areas = [];
 
+    const selectAreaRowIndexes = []
+    selectArea.selectAreas.forEach((sa: [number, number, number, number]) => {
+      selectAreaRowIndexes.push([sa[0], sa[2]]);
+    });
+
     // 背景
-    this.$ctx.fillStyle = '#e9e9e9';
-    this.$ctx.fillRect(0, config.colHeaderHeight, config.rowHeaderWidth, 1e10);
-    this.$ctx.strokeStyle = '#aeaeae';
-    this.$ctx.lineWidth = .5;
-    this.$ctx.strokeRect(.5, config.colHeaderHeight +.5, config.rowHeaderWidth, 1e10);
+    CanvasUtil.drawRect(this.$ctx, 0, config.colHeaderHeight, config.rowHeaderWidth, 1e10, {fillStyle: '#e9e9e9', strokeStyle: '#aeaeae'});
 
     let offsetY = config.colHeaderHeight;
     for (let i = 0; i < this.num; i++) {
@@ -60,15 +64,12 @@ export class RowHeaderDrawer extends BaseDrawer {
         continue;
       }
 
-      if (i === this.hoverIndex) {
-        this.$ctx.fillStyle = '#e0f2f1';
+      const inSelectArea = selectAreaRowIndexes.findIndex(item => item[0] <= i && item[1] >= i) >= 0;
+      if (this.hoverIndex === i) {
+        CanvasUtil.drawRect(this.$ctx, 0, y1, config.rowHeaderWidth, height, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
       } else {
-        this.$ctx.fillStyle = '#e9e9e9';
+        CanvasUtil.drawRect(this.$ctx, 0, y1, config.rowHeaderWidth, height, {strokeStyle: '#aeaeae', fillStyle: inSelectArea? '#dadada' : '#e9e9e9'})
       }
-      this.$ctx.fillRect(0, y1, config.rowHeaderWidth, height);
-      this.$ctx.strokeStyle = '#aeaeae';
-      this.$ctx.lineWidth = .5;
-      this.$ctx.strokeRect(.5, y1 + .5, config.rowHeaderWidth, height);
 
       if ((y2 - y1) / 2 - 2 > 3) {
         this.$ctx.fillStyle = '#787878';
@@ -82,6 +83,20 @@ export class RowHeaderDrawer extends BaseDrawer {
       const area = new Area(0, y1, config.rowHeaderWidth, y1 + height);
       this.areas.push(area);
       offsetY = offsetY + config.rowHeight;
+
+      if (inSelectArea) {
+        CanvasUtil.drawLine(
+          this.$ctx,
+          [
+            Point.build(config.rowHeaderWidth, y1),
+            Point.build(config.rowHeaderWidth, y1 + height)
+          ],
+          {
+            strokeStyle: '#26a69a',
+            lineWidth: 2
+          }
+        )
+      }
     }
 
     return this.areas;

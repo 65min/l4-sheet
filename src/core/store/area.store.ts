@@ -1,30 +1,39 @@
 import {Area} from '../model/area.ts';
-import {HScroll} from '../draw/h-scroll.ts';
-import {VScroll} from '../draw/v-scroll.ts';
 
-
-const hScroll: HScroll = null;
 const hScrollArea: Area = null;
 const hScrollBarArea: Area = null;
 const hScrollLArea: Area = null;
 const hScrollRArea: Area = null;
-const vScroll: VScroll = null;
 const vScrollArea: Area = null;
 const vScrollBarArea: Area = null;
 const vScrollLArea: Area = null;
 const vScrollRArea: Area = null
 
-const scroll = {
-  hScroll,
+const tableHeaderArea: Area = null;
+const colHeaderArea: Area[] = null;
+const rowHeaderArea: Area[] = null;
+
+const cellContentArea: Area[][] = null;
+const backgroundArea: Area = null;
+
+const areaStore = {
   hScrollArea,
   hScrollBarArea,
   hScrollLArea,
   hScrollRArea,
-  vScroll,
   vScrollArea,
   vScrollBarArea,
   vScrollLArea,
-  vScrollRArea
+  vScrollRArea,
+
+  tableHeaderArea,
+  colHeaderArea,
+  rowHeaderArea,
+
+  cellContentArea,
+  backgroundArea
 };
 
-export default scroll;
+window.areaStore = areaStore;
+
+export default areaStore;

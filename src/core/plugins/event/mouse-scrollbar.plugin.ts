@@ -2,42 +2,51 @@ import BasePlugin from '../base-plugin.ts';
 import {PluginType} from '../plugin-type.enum.ts';
 import {AreaUtil} from '../../utils/area-util.ts';
 import {Point} from '../../model/point.ts';
-import scroll from '../../store/scroll.ts';
 import operate from '../../store/operate.ts';
-import control from '../../store/control.ts';
+import control from '../../store/control.store.ts';
 import state from '../../store/state.ts';
-import headerStore from '../../store/header.ts';
-import cellStore from '../../store/cell-content.ts';
 import {CanvasUtil} from '../../utils/canvas-util.ts';
 import config from '../../config';
+import areaStore from '../../store/area.store.ts';
+import selectArea from '../../store/select-area.ts';
+import controlStore from '../../store/control.store.ts';
 
 
 export default class MouseScrollbarPlugin extends BasePlugin {
 
   type = PluginType.EventMouseScrollbar;
 
+  // private count = 0;
+
+  private count = 0;
+
   handleMousedown = (event: MouseEvent) => {
     const {offsetX, offsetY} = event;
 
     const mousedownPoint = new Point(offsetX, offsetY);
-    const isInHScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.hScrollBarArea);
+    const isInHScrollBarArea = AreaUtil.inArea(mousedownPoint, areaStore.hScrollBarArea);
     if (isInHScrollBarArea) {
       operate.type = 'scroll-h';
       operate.scrollHState.beginPoint = mousedownPoint;
-      operate.scrollHState.initOffsetX = scroll.hScroll.offsetX;
+      operate.scrollHState.initOffsetX = control.hScroll.offsetX;
       return ;
     }
 
-    const isInVScrollBarArea = AreaUtil.inArea(mousedownPoint, scroll.vScrollBarArea);
+    const isInVScrollBarArea = AreaUtil.inArea(mousedownPoint, areaStore.vScrollBarArea);
     if (isInVScrollBarArea) {
       operate.type = 'scroll-v';
       operate.scrollVState.beginPoint = mousedownPoint;
-      operate.scrollVState.initOffsetY = scroll.vScroll.offsetY;
+      operate.scrollVState.initOffsetY = control.vScroll.offsetY;
       return ;
     }
   }
 
   handleMousemove = (event: MouseEvent) => {
+
+    if (!(this.count ++ % 5 == 0)) {
+      return ;
+    }
+
     // console.log(event);
     const {offsetX, offsetY} = event;
     if (operate.type === 'scroll-h' && event.button === 0) {
@@ -49,12 +58,12 @@ export default class MouseScrollbarPlugin extends BasePlugin {
         totalOffsetX = 0;
       }
 
-      scroll.hScroll.offsetX = totalOffsetX;
+      control.hScroll.offsetX = totalOffsetX;
       state.offsetX = totalOffsetX / state.hScrollRatio;
       if (state.offsetX > state.contentWidth - 160) {
         state.offsetX = state.contentWidth - 160;
       }
-      scroll.hScroll.offsetX = state.offsetX * state.hScrollRatio;
+      control.hScroll.offsetX = state.offsetX * state.hScrollRatio;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(state.offsetX);
 
       this.refreshView();
@@ -67,26 +76,31 @@ export default class MouseScrollbarPlugin extends BasePlugin {
         totalOffsetY = 0;
       }
 
-      scroll.vScroll.offsetY = totalOffsetY;
+      control.vScroll.offsetY = totalOffsetY;
       state.offsetY = totalOffsetY / state.vScrollRatio;
       if (state.offsetY > state.contentHeight - 100) {
         state.offsetY = state.contentHeight - 100;
       }
-      scroll.vScroll.offsetY = state.offsetY * state.vScrollRatio;
+      control.vScroll.offsetY = state.offsetY * state.vScrollRatio;
       state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);
 
       this.refreshView();
     } else {
       const point = new Point(offsetX, offsetY);
-      scroll.hScroll.hover = AreaUtil.inArea(point, scroll.hScrollBarArea);
-      scroll.hScroll.leftButtonStatus.hover = AreaUtil.inArea(point, scroll.hScrollLArea);
-      scroll.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, scroll.hScrollRArea);
-      scroll.hScroll.draw();
-      scroll.vScroll.hover = AreaUtil.inArea(point, scroll.vScrollBarArea);
-      scroll.vScroll.leftButtonStatus.hover = AreaUtil.inArea(point, scroll.vScrollLArea);
-      scroll.vScroll.rightButtonStatus.hover = AreaUtil.inArea(point, scroll.vScrollRArea);
-      scroll.vScroll.draw();
+      if (control.hScroll) {
+        control.hScroll.hover = AreaUtil.inArea(point, areaStore.hScrollBarArea);
+        control.hScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollLArea);
+        control.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollRArea);
+        control.hScroll.draw();
+      }
+      if (control.vScroll) {
+        control.vScroll.hover = AreaUtil.inArea(point, areaStore.vScrollBarArea);
+        control.vScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollLArea);
+        control.vScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollRArea);
+        control.vScroll.draw();
+      }
     }
+
   }
 
   handleMouseup(event: MouseEvent) {
@@ -106,29 +120,38 @@ export default class MouseScrollbarPlugin extends BasePlugin {
 
   refreshView() {
 
-    cellStore.backgroundArea = control.background.draw();
-    cellStore.cellContentArea = control.cellContent.draw();
-    headerStore.tableHeaderArea = control.tableHeader.draw();
+    areaStore.backgroundArea = control.background.draw();
+    areaStore.cellContentArea = control.cellContent.draw();
+    this.drawSelectCell();
+    areaStore.tableHeaderArea = control.tableHeader.draw();
 
-    headerStore.colHeaderArea = control.colHeader.draw();
-    headerStore.rowHeaderArea = control.rowHeader.draw();
+    areaStore.colHeaderArea = control.colHeader.draw();
+    areaStore.rowHeaderArea = control.rowHeader.draw();
 
-    headerStore.rowHeaderArea = control.rowHeader.draw();
+    areaStore.rowHeaderArea = control.rowHeader.draw();
 
-    const [hScrollBarArea, hLeftBtnArea, hRightBtnArea, hScrollArea] = scroll.hScroll.draw();
-    scroll.hScrollBarArea = hScrollBarArea;
-    scroll.hScrollArea = hScrollArea;
-    scroll.hScrollLArea = hLeftBtnArea;
-    scroll.hScrollRArea = hRightBtnArea;
+    if (control.hScroll) {
+      const [hScrollBarArea, hLeftBtnArea, hRightBtnArea, hScrollArea] = control.hScroll.draw();
+      areaStore.hScrollBarArea = hScrollBarArea;
+      areaStore.hScrollArea = hScrollArea;
+      areaStore.hScrollLArea = hLeftBtnArea;
+      areaStore.hScrollRArea = hRightBtnArea;
+    }
 
-    const [vScrollBarArea, vLeftBtnArea, vRightBtnArea, vScrollArea] = scroll.vScroll.draw();
-    scroll.vScrollBarArea = vScrollBarArea;
-    scroll.vScrollArea = vScrollArea;
-    scroll.vScrollLArea = vLeftBtnArea;
-    scroll.vScrollRArea = vRightBtnArea;
+    if (control.vScroll) {
+      const [vScrollBarArea, vLeftBtnArea, vRightBtnArea, vScrollArea] = control.vScroll.draw();
+      areaStore.vScrollBarArea = vScrollBarArea;
+      areaStore.vScrollArea = vScrollArea;
+      areaStore.vScrollLArea = vLeftBtnArea;
+      areaStore.vScrollRArea = vRightBtnArea;
+    }
   }
 
   handleScroll(event: WheelEvent) {
+    if (!control.vScroll) {
+      return ;
+    }
+
     const {deltaY} = event;
     let {offsetY} = state;
     offsetY = offsetY + deltaY;
@@ -141,24 +164,23 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     state.emptyHeight = CanvasUtil.computeEmptyHeight(offsetY);
 
     state.offsetY = offsetY
-    scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
+    control.vScroll.offsetY = offsetY * state.vScrollRatio;
     this.refreshView();
   }
 
   handleScrollBtn(event: MouseEvent) {
     const point = new Point(event.offsetX, event.offsetY);
-    const hlBtn = AreaUtil.inArea(point, scroll.hScrollLArea); // 横向左侧按钮
-    const hrBtn = AreaUtil.inArea(point, scroll.hScrollRArea); // 横向右侧按钮
-    const vlBtn = AreaUtil.inArea(point, scroll.vScrollLArea); // 竖向左侧按钮
-    const vrBtn = AreaUtil.inArea(point, scroll.vScrollRArea); // 竖向右侧按钮
+    const hlBtn = AreaUtil.inArea(point, areaStore.hScrollLArea); // 横向左侧按钮
+    const hrBtn = AreaUtil.inArea(point, areaStore.hScrollRArea); // 横向右侧按钮
+    const vlBtn = AreaUtil.inArea(point, areaStore.vScrollLArea); // 竖向左侧按钮
+    const vrBtn = AreaUtil.inArea(point, areaStore.vScrollRArea); // 竖向右侧按钮
     if (hlBtn) {
-      // console.log('h scroll left btn click');
       let {offsetX} = state;
       offsetX = offsetX - 80;
       if (offsetX < 0) {
         offsetX = 0;
       }
-      scroll.hScroll.offsetX = offsetX * state.hScrollRatio;
+      control.hScroll.offsetX = offsetX * state.hScrollRatio;
       state.offsetX = offsetX;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
 
@@ -169,7 +191,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetX > state.contentWidth - 160) {
         offsetX = state.contentWidth - 160
       }
-      scroll.hScroll.offsetX = offsetX * state.hScrollRatio;
+      control.hScroll.offsetX = offsetX * state.hScrollRatio;
       state.offsetX = offsetX;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
 
@@ -181,7 +203,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetY < 0) {
         offsetY = 0;
       }
-      scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
+      control.vScroll.offsetY = offsetY * state.vScrollRatio;
       state.offsetY = offsetY;
       state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
 
@@ -192,7 +214,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetY > state.contentHeight - 100) {
         offsetY = state.contentHeight - 100
       }
-      scroll.vScroll.offsetY = offsetY * state.vScrollRatio;
+      control.vScroll.offsetY = offsetY * state.vScrollRatio;
       state.offsetY = offsetY;
       state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
 
@@ -213,6 +235,23 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     this.$target.addEventListener('mousewheel', this.handleScroll.bind(this));
 
     this.$target.addEventListener('mousedown', this.handleScrollBtn.bind(this))
+  }
+
+  private drawSelectCell() {
+    const [cri, cci] = selectArea.selectCell;
+    if (cri >= 0 && cci >= 0) {
+      // controlStore.cellContent.drawCell(cri, cci);
+      controlStore.selectArea.draw();
+      controlStore.colHeader.draw();
+      controlStore.rowHeader.draw();
+      const {vScroll, hScroll} = controlStore;
+      if (vScroll) {
+        vScroll.draw();
+      }
+      if (hScroll) {
+        hScroll.draw();
+      }
+    }
   }
 
 }

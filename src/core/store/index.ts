@@ -5,5 +5,5 @@ const store = {
   $ctx,
   $canvas
 }
-
+// window.ss = store;
 export default store;

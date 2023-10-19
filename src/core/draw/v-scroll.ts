@@ -82,18 +82,19 @@ export class VScroll extends BaseDrawer {
 
     let ratio = (viewHeight - config.scroll.width + 4) / (contentHeight + state.emptyHeight);
     state.vScrollRatio = ratio;
-    if (ratio < .05) {
-      ratio = .05;
+    if (ratio < .02) {
+      ratio = .02;
     }
-    this.barLength = state.vScrollRatio * (viewHeight - config.scroll.width - config.scroll.width);
+    this.barLength = ratio * (viewHeight - config.scroll.width - config.scroll.width);
 
     // 整个滚动条区域
-    this.$ctx.fillStyle = BACKGROUND_COLOR
-    // this.$ctx.fillRect(config.rowHeaderWidth, canvasHeight - 16, viewHeight, 16);
-    this.$ctx.fillRect(canvasWidth - config.scroll.width, 1, config.scroll.width, canvasHeight);
+    // this.$ctx.fillStyle = BACKGROUND_COLOR
+    // // this.$ctx.fillRect(config.rowHeaderWidth, canvasHeight - 16, viewHeight, 16);
+    // this.$ctx.fillRect(canvasWidth - config.scroll.width, 1, config.scroll.width, canvasHeight);
+    CanvasUtil.drawRect(this.$ctx, canvasWidth - config.scroll.width, 1, config.scroll.width, canvasHeight, {fillStyle: BACKGROUND_COLOR});
 
     // 左按钮 + 右按钮
-    CanvasUtil.drawPath(
+    CanvasUtil.fillPath(
       this.$ctx,
       [
         new Point(state.canvasWidth - config.scroll.width + 4, config.colHeaderHeight + config.scroll.width - 4),
@@ -104,7 +105,7 @@ export class VScroll extends BaseDrawer {
         fillStyle: (this.leftButtonStatus.disabled || !this.leftButtonStatus.hover)? BAR_COLOR : BAR_COLOR__HOVER
       }
     );
-    CanvasUtil.drawPath(
+    CanvasUtil.fillPath(
       this.$ctx,
       [
         new Point(state.canvasWidth - config.scroll.width + 4, state.canvasHeight - config.scroll.width - config.scroll.width + 4),
@@ -128,11 +129,16 @@ export class VScroll extends BaseDrawer {
       barY1 = this.bar_limit_y2 - this.barLength;
     }
     // 内部滚动条
-    this.$ctx.fillStyle = BAR_COLOR;
-    if (this.hover || operate.type === 'scroll-h') {
-      this.$ctx.fillStyle = BAR_COLOR__HOVER;
-    }
-    this.$ctx.fillRect(canvasWidth - config.scroll.width + 2, barY1, config.scroll.width - 4, this.barLength);
+    // this.$ctx.fillStyle = BAR_COLOR;
+    // if (this.hover || operate.type === 'scroll-h') {
+    //   this.$ctx.fillStyle = BAR_COLOR__HOVER;
+    // }
+    // this.$ctx.fillRect(canvasWidth - config.scroll.width + 2, barY1, config.scroll.width - 4, this.barLength);
+    CanvasUtil.drawRect(
+      this.$ctx,
+      canvasWidth - config.scroll.width + 2, barY1, config.scroll.width - 4, this.barLength,
+      {fillStyle: (this.hover || operate.type === 'scroll-v')? BAR_COLOR__HOVER : BAR_COLOR}
+    );
 
     const barArea = new Area(canvasWidth - config.scroll.width, barY1, canvasWidth - config.scroll.width + config.scroll.width, barY1 + this.barLength);
     const scrollArea = new Area(canvasWidth - config.scroll.width, config.colHeaderHeight, canvasWidth, canvasHeight - config.scroll.width - config.scroll.width);

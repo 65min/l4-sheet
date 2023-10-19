@@ -10,6 +10,9 @@ export class AreaUtil {
    * @param area
    */
   public static inArea(point: Point, area: Area): boolean {
+    if (!point || !area) {
+      return false;
+    }
     const {x, y} = point;
     const {x1, y1, x2, y2} = area;
     return x >= x1 && x <= x2 && y >= y1 && y <= y2;

@@ -3,7 +3,10 @@ import {Area} from '../model/area.ts';
 import {CommonUtil} from '../utils/common-util.ts';
 import state from '../store/state.ts';
 import config from '../config';
-import header from '../store/header.ts';
+import {CanvasUtil} from '../utils/canvas-util.ts';
+import areaStore from '../store/area.store.ts';
+import selectArea from '../store/select-area.ts';
+import {Point} from '../model/point.ts';
 
 export class ColHeaderDrawer extends BaseDrawer {
 
@@ -33,12 +36,13 @@ export class ColHeaderDrawer extends BaseDrawer {
 
     this.areas = [];
 
+    const selectAreaColIndexes = []
+    selectArea.selectAreas.forEach((sa: [number, number, number, number]) => {
+      selectAreaColIndexes.push([sa[1], sa[3]]);
+    });
+
     // 背景
-    this.$ctx.fillStyle = '#e9e9e9';
-    this.$ctx.fillRect(config.rowHeaderWidth, 0, 1e10, config.colHeaderHeight);
-    this.$ctx.strokeStyle = '#aeaeae';
-    this.$ctx.lineWidth = .5;
-    this.$ctx.strokeRect(config.rowHeaderWidth +.5, .5, 1e10, config.colHeaderHeight);
+    CanvasUtil.drawRect(this.$ctx, config.rowHeaderWidth, 0, 1e10, config.colHeaderHeight, {fillStyle: '#e9e9e9', strokeStyle: '#aeaeae'});
 
     let offsetX = config.rowHeaderWidth;
     for (let i = 0; i < this.num; i++) {
@@ -63,15 +67,12 @@ export class ColHeaderDrawer extends BaseDrawer {
         continue;
       }
 
-      if (i === this.hoverIndex) {
-        this.$ctx.fillStyle = '#e0f2f1';
+      const inSelectArea = selectAreaColIndexes.findIndex(item => item[0] <= i && item[1] >= i) >= 0;
+      if (this.hoverIndex === i) {
+        CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
       } else {
-        this.$ctx.fillStyle = '#e9e9e9';
+        CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: inSelectArea? '#dadada' : '#e9e9e9'})
       }
-      this.$ctx.fillRect(x1, 0, width, config.colHeaderHeight);
-      this.$ctx.strokeStyle = '#aeaeae';
-      this.$ctx.lineWidth = .5;
-      this.$ctx.strokeRect(x1 +.5, .5, width, config.colHeaderHeight);
 
       if ((x2 - x1) / 2 - 2 > 5) {
         this.$ctx.fillStyle = '#787878';
@@ -85,16 +86,30 @@ export class ColHeaderDrawer extends BaseDrawer {
       const area = new Area(x1, 0, x1 + width, config.colHeaderHeight);
       this.areas.push(area);
       offsetX = offsetX + config.colWidth;
+
+      if (inSelectArea) {
+        CanvasUtil.drawLine(
+          this.$ctx,
+          [
+            Point.build(x1, config.colHeaderHeight),
+            Point.build(x1 + width, config.colHeaderHeight)
+          ],
+          {
+            strokeStyle: '#26a69a',
+            lineWidth: 2
+          }
+        )
+      }
     }
 
     return this.areas;
   }
 
   drawIndex(index: number) {
-    if (index < 0 || index > header.colHeaderArea.length - 1) {
+    if (index < 0 || index > areaStore.colHeaderArea.length - 1) {
       throw new Error(`index: ${index} error`);
     }
-    const area = header.colHeaderArea[index];
+    const area = areaStore.colHeaderArea[index];
     if (!area) {
       return;
     }

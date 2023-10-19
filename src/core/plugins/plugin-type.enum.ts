@@ -10,5 +10,8 @@ export enum PluginType {
   EventMouse = 'EventMouse',
   EventMouseScrollbar = 'EventMouseScrollbar',
   EventMouseHeader = 'EventMouseHeader',
-  EventMouseContent = 'EventMouseContent'
+  EventMouseContent = 'EventMouseContent',
+
+  SelectArea = 'SelectArea'
+
 }

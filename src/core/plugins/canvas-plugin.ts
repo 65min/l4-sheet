@@ -3,17 +3,16 @@ import BasePlugin from './base-plugin.ts';
 import {TableHeaderDrawer} from '../draw/table-header.ts';
 import {ColHeaderDrawer} from '../draw/col-header.ts';
 import {RowHeaderDrawer} from '../draw/row-header.ts';
-import headerStore from '../store/header.ts';
 import {CellContentDrawer} from '../draw/cell-content.ts';
-import cellStore from '../store/cell-content.ts';
 import state from '../store/state.ts';
 import {HScroll} from '../draw/h-scroll.ts';
 import store from '../store';
-import scroll from '../store/scroll.ts';
 import {BackgroundDrawer} from '../draw/background.ts';
-import control from '../store/control.ts';
+import control from '../store/control.store.ts';
 import {VScroll} from '../draw/v-scroll.ts';
 import config from '../config';
+import {SelectAreaDrawer} from '../draw/select-area.ts';
+import areaStore from '../store/area.store.ts';
 //
 // (function () {
 //   if (window.customElements.get('l4-canvas') === undefined) {
@@ -64,6 +63,8 @@ export default class CanvasPlugin extends BasePlugin {
 
   vScroll: VScroll | undefined;
 
+  selectArea: SelectAreaDrawer | undefined;
+
 
   constructor(selector: string) {
     super(selector);
@@ -89,38 +90,43 @@ export default class CanvasPlugin extends BasePlugin {
     state.canvasHeight = 675;
 
     this.$ctx = this.$canvas.getContext('2d')!;
+    store.$ctx = this.$ctx;
 
     this.background = new BackgroundDrawer(this.$ctx);
-    cellStore.backgroundArea = this.background.draw();
+    areaStore.backgroundArea = this.background.draw();
 
     this.tableHeader = new TableHeaderDrawer(this.$ctx);
     const tableHeaderArea = this.tableHeader.draw();
 
-    this.colHeader = new ColHeaderDrawer(this.$ctx, 26);
+    this.colHeader = new ColHeaderDrawer(this.$ctx, state.colNum);
     const colHeaderArea = this.colHeader.draw();
-    state.colNum = 26;
+    // state.colNum = 26;
 
-    this.rowHeader = new RowHeaderDrawer(this.$ctx, 100);
+    this.rowHeader = new RowHeaderDrawer(this.$ctx, state.rowNum);
     const rowHeaderArea = this.rowHeader.draw();
-    state.rowNum = 100;
+    // state.rowNum = 100;
 
     state.viewWidth = state.canvasWidth - 36;
     state.viewHeight = state.canvasHeight - 20;
 
-    this.cellContent = new CellContentDrawer(this.$ctx, 100, 26);
+    this.cellContent = new CellContentDrawer(this.$ctx, state.rowNum, state.colNum);
     const cellContentArea = this.cellContent.draw();
 
-    headerStore.tableHeaderArea = tableHeaderArea;
-    headerStore.colHeaderArea = colHeaderArea;
-    headerStore.rowHeaderArea = rowHeaderArea;
+    this.selectArea = new SelectAreaDrawer(this.$ctx);
+    this.selectArea.draw();
 
-    cellStore.cellContentArea = cellContentArea;
+    areaStore.tableHeaderArea = tableHeaderArea;
+    areaStore.colHeaderArea = colHeaderArea;
+    areaStore.rowHeaderArea = rowHeaderArea;
+
+    areaStore.cellContentArea = cellContentArea;
 
     control.tableHeader = this.tableHeader;
     control.rowHeader = this.rowHeader;
     control.colHeader = this.colHeader;
     control.cellContent = this.cellContent;
     control.background = this.background;
+    control.selectArea = this.selectArea;
 
     const showScroll = this.showScroll();
     if (showScroll.h) {
@@ -128,24 +134,24 @@ export default class CanvasPlugin extends BasePlugin {
       state.viewWidth = state.viewWidth - config.scroll.width;
 
       this.hScroll = new HScroll(this.$ctx);
-      scroll.hScroll = this.hScroll;
+      control.hScroll = this.hScroll;
       const [hScrollBarArea, leftBtnArea, rightBtnArea, hScrollArea] = this.hScroll.draw();
-      scroll.hScrollBarArea = hScrollBarArea;
-      scroll.hScrollArea = hScrollArea;
-      scroll.hScrollLArea = leftBtnArea;
-      scroll.hScrollRArea = rightBtnArea;
+      areaStore.hScrollBarArea = hScrollBarArea;
+      areaStore.hScrollArea = hScrollArea;
+      areaStore.hScrollLArea = leftBtnArea;
+      areaStore.hScrollRArea = rightBtnArea;
     }
     if (showScroll.v) {
       state.hScrollHeight = config.scroll.width;
       state.viewHeight = state.viewHeight - config.scroll.width;
 
       this.vScroll = new VScroll(this.$ctx);
-      scroll.vScroll = this.vScroll;
+      control.vScroll = this.vScroll;
       const [vScrollBarArea, leftBtnArea, rightBtnArea, vScrollArea] = this.vScroll.draw();
-      scroll.vScrollBarArea = vScrollBarArea;
-      scroll.vScrollArea = vScrollArea;
-      scroll.vScrollLArea = leftBtnArea;
-      scroll.vScrollRArea = rightBtnArea;
+      areaStore.vScrollBarArea = vScrollBarArea;
+      areaStore.vScrollArea = vScrollArea;
+      areaStore.vScrollLArea = leftBtnArea;
+      areaStore.vScrollRArea = rightBtnArea;
     }
 
   }

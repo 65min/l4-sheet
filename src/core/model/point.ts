@@ -10,4 +10,7 @@ export class Point {
     this.y = y;
   }
 
+  public static build(x: number, y: number): Point {
+    return new Point(x, y);
+  }
 }

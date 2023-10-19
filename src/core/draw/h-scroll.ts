@@ -101,15 +101,15 @@ export class HScroll extends BaseDrawer {
     if (ratio < .05) {
       ratio = .05;
     }
-    this.barLength = state.hScrollRatio * (viewWidth - config.scroll.width - config.scroll.width);
+    this.barLength = ratio * (viewWidth - config.scroll.width - config.scroll.width);
 
     // 整个滚动条区域
-    this.$ctx.fillStyle = BACKGROUND_COLOR
-    // this.$ctx.fillRect(config.rowHeaderWidth, canvasHeight - 16, viewWidth, 16);
-    this.$ctx.fillRect(0, canvasHeight - config.scroll.width, canvasWidth, config.scroll.width);
+    // this.$ctx.fillStyle = BACKGROUND_COLOR
+    // this.$ctx.fillRect(0, canvasHeight - config.scroll.width, canvasWidth, config.scroll.width);
+    CanvasUtil.drawRect(this.$ctx, 0, canvasHeight - config.scroll.width, canvasWidth, config.scroll.width, {fillStyle: BACKGROUND_COLOR});
 
     // 左按钮 + 右按钮
-    CanvasUtil.drawPath(
+    CanvasUtil.fillPath(
       this.$ctx,
       [
         new Point(config.rowHeaderWidth + config.scroll.width - 4, state.canvasHeight - config.scroll.width + 4),
@@ -120,7 +120,7 @@ export class HScroll extends BaseDrawer {
         fillStyle: (this.leftButtonStatus.disabled || !this.leftButtonStatus.hover)? BAR_COLOR : BAR_COLOR__HOVER
       }
     );
-    CanvasUtil.drawPath(
+    CanvasUtil.fillPath(
       this.$ctx,
       [
         new Point(canvasWidth - config.scroll.width - config.scroll.width + 4, state.canvasHeight - config.scroll.width + 4),
@@ -144,11 +144,11 @@ export class HScroll extends BaseDrawer {
       barX1 = this.bar_limit_x2 - this.barLength;
     }
     // 内部滚动条
-    this.$ctx.fillStyle = BAR_COLOR;
-    if (this.hover || operate.type === 'scroll-h') {
-      this.$ctx.fillStyle = BAR_COLOR__HOVER;
-    }
-    this.$ctx.fillRect(barX1, canvasHeight - config.scroll.width + 2, this.barLength, config.scroll.width - 4);
+    CanvasUtil.drawRect(
+      this.$ctx,
+      barX1, canvasHeight - config.scroll.width + 2, this.barLength, config.scroll.width - 4,
+      {fillStyle: (this.hover || operate.type === 'scroll-h')? BAR_COLOR__HOVER : BAR_COLOR}
+    );
 
     const barArea = new Area(barX1, canvasHeight - config.scroll.width, barX1 + this.barLength, canvasHeight);
     const scrollArea = new Area(config.rowHeaderWidth, canvasHeight - config.scroll.width, viewWidth, config.scroll.width);
