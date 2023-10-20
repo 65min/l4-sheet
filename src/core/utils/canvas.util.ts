@@ -51,8 +51,8 @@ export class CanvasUtil {
     }
     ctx.fillRect(x, y, width, height);
     if (style.strokeStyle) {
-      ctx.lineWidth = .5;
-      ctx.strokeStyle = '#aeaeae';
+      ctx.lineWidth = style.lineWidth || .5;
+      ctx.strokeStyle = style.strokeStyle || '#aeaeae';
       ctx.strokeRect(x + .5, y + .5, width, height);
     }
   }

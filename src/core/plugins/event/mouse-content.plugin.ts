@@ -12,6 +12,7 @@ import controlStore from '../../store/control.store.ts';
 import {CellAreaUtil} from '../../utils/cell-area.util.ts';
 import {CellArea, CellIndex} from '../../def/cell-area.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
+import {CellIndexUtil} from '../../utils/cell-index.util.ts';
 
 export default class MouseContentPlugin extends BasePlugin {
 
@@ -61,15 +62,45 @@ export default class MouseContentPlugin extends BasePlugin {
 
   handleMousemoveSelectEvent(event: MouseEvent) {
     const {type} = operate;
+    const cellIndex = this.isEventInCell(event);
     if (type === 'select-cell') {
-      operate.selectCellState.endCell = this.isEventInCell(event);
+      if (CellIndexUtil.equals(operate.selectCellState.endCell, cellIndex)) {
+        return ;
+      }
+      operate.selectCellState.endCell = cellIndex;
       const {beginCell, endCell} = operate.selectCellState;
-      // selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
+      // selectedCellAreas.push([...beginCell, ...endCell]);
       if (selectArea.selectedCellAreas.length === 0) {
         // selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
         selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
       } else {
         selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = CellAreaUtil.computeMinCellArea(beginCell, endCell);
+      }
+
+      ViewUtil.refreshView();
+      controlStore.selectArea.draw();
+    } else if (type === 'select-multi-cell') {
+      if (CellIndexUtil.equals(operate.selectCellState.endCell, cellIndex)) {
+        return ;
+      }
+      operate.selectCellState.endCell = cellIndex;
+      const {beginCell, endCell} = operate.selectCellState;
+
+      // 开始单元格是否在选择区域内
+      // const beginInArea = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, beginCell)) >= 0;
+      // console.log(beginInArea)
+      if (operate.selectCellState.deselect) {
+        // for (let i = selectArea.selectedCellAreas.length - 1; i >= 0; i --) {
+        //   const currentSelectedCellArea = selectArea.selectedCellAreas[i];
+        //   const splitedCellArea = CellAreaUtil.splitWithoutTargetCell(currentSelectedCellArea, [...beginCell, ...endCell]);
+        //   splitedCellArea.sort(() => -1);
+        //   selectArea.selectedCellAreas.splice(i, 1, ...splitedCellArea);
+        // }
+        selectArea.deSelectedCellArea = [...beginCell, ...endCell];
+        // console.log(selectArea.deSelectedCellArea);
+      } else {
+        // selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
+        selectArea.selectedCellAreas.splice(selectArea.selectedCellAreas.length - 1, 1, [...beginCell, ...endCell])
       }
 
       ViewUtil.refreshView();
@@ -107,30 +138,21 @@ export default class MouseContentPlugin extends BasePlugin {
 
   private handleMousedownEvent(event: MouseEvent) {
     const cellIndex = this.isEventInCell(event);
+    selectArea.deSelectedCellArea = null;
     if (cellIndex) {
       ViewUtil.refreshView();
       // const [cri, cci] = selectArea.selectCell;
-      selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
       selectArea.selectedCellAreas = selectArea.selectedCellAreas || [];
+      selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
       if (!event.ctrlKey) {
         selectArea.selectedCell = cellIndex;
         selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex]];
       } else {
+        // 是否反向选择
+        operate.selectCellState.deselect = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, cellIndex)) >= 0;
         const cellArea: CellArea = [...cellIndex, ...cellIndex];
-        // const existIndex = selectArea.selectedCellAreas.findIndex(item => item[0] === cellArea[0] && item[1] === cellArea[1] && item[2] === cellArea[2] && item[3] === cellArea[3]);
-        const existIndex = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, cellIndex));
-        if (existIndex >= 0) {
-
-          const existSelectCellArea = selectArea.selectedCellAreas[existIndex];
-          const splitedCellArea = CellAreaUtil.splitWithoutTargetCell(existSelectCellArea, cellArea);
-          // 倒序排列
-          splitedCellArea.sort( () => -1);
-
-          const removeCellArea = selectArea.selectedCellAreas.splice(existIndex, 1, ...splitedCellArea)[0];
-          if (CellAreaUtil.cellAreaContainsCell(removeCellArea, selectArea.selectedCell)) {
-            const lastCellArea = selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1];
-            selectArea.selectedCell = [lastCellArea[0], lastCellArea[1]];
-          }
+        if (operate.selectCellState.deselect) {
+          selectArea.deSelectedCellArea = cellArea;
         } else {
           selectArea.selectedCellAreas.push(cellArea);
           selectArea.selectedCell = cellIndex;
@@ -159,6 +181,18 @@ export default class MouseContentPlugin extends BasePlugin {
 
   private handleMouseupEvent(_event: MouseEvent) {
     if (operate.type === 'select-cell' || operate.type === 'select-multi-cell') {
+      if (selectArea.deSelectedCellArea) {
+        for (let i = selectArea.selectedCellAreas.length - 1; i >= 0; i--) {
+          const selectedCellArea = selectArea.selectedCellAreas[i];
+          const subtractCellArea = CellAreaUtil.splitWithoutTargetCell(selectedCellArea, selectArea.deSelectedCellArea);
+          subtractCellArea.sort(() => -1);
+          selectArea.selectedCellAreas.splice(i, 1, ...subtractCellArea);
+        }
+      }
+      ViewUtil.refreshView();
+      selectArea.deSelectedCellArea = null;
+      controlStore.selectArea.draw();
+      // selectArea.deSelectedCellArea = null;
       operate.type = '';
       operate.selectCellState.beginCell = [-1, -1];
       operate.selectCellState.endCell = [-1, -1];

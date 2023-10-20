@@ -12,12 +12,14 @@ import {CellArea, CellIndex} from '../def/cell-area.ts';
 export class SelectAreaDrawer extends BaseDrawer {
 
   draw(): Area | Area[] | Area[][] {
+    let area = null;
     if (selectArea.selectedCellAreas.length === 1) {
-      return this.drawSingleArea(selectArea.selectedCellAreas[0]);
+      area = this.drawSingleArea(selectArea.selectedCellAreas[0]);
     } else if (selectArea.selectedCellAreas.length > 1) {
-      return this.drawMultiArea(selectArea.selectedCellAreas);
+      area = this.drawMultiArea(selectArea.selectedCellAreas);
     }
-    return [];
+    this.drawDeselectedCellArea(selectArea.deSelectedCellArea);
+    return area;
   }
 
   private drawSingleArea(cellArea: CellArea): Area {
@@ -47,12 +49,16 @@ export class SelectAreaDrawer extends BaseDrawer {
     return totalArea;
   }
 
-  private computeArea(selectCell: CellArea): Area {
+  private computeArea(cellArea: CellArea): Area {
     // const area = selectArea.selectAreas[0];
-    if (!selectCell) {
+    if (!cellArea) {
       return ;
     }
-    const [ri1, ci1, ri2, ci2] = selectCell;
+    // const [ri1, ci1, ri2, ci2] = selectCell;
+    const ri1 = Math.min(cellArea[0], cellArea[2]);
+    const ri2 = Math.max(cellArea[0], cellArea[2]);
+    const ci1 = Math.min(cellArea[1], cellArea[3]);
+    const ci2 = Math.max(cellArea[1], cellArea[3]);
 
     const areas = [];
     for (let i = ri1; i <= ri2; i++) {
@@ -91,13 +97,22 @@ export class SelectAreaDrawer extends BaseDrawer {
           );
         }
 
-        splitedCellAreas.forEach(item => {
+        splitedCellAreas.forEach((item: CellArea, index: number) => {
           const itemArea = this.computeArea(item);
           const {x1, x2, y1, y2} = itemArea;
-          CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
-        })
+          if (index === 0 && index === splitedCellAreas.length - 1) {
+            CanvasUtil.drawRect(store.$ctx, x1 + 3, y1 + 3, x2 - x1 - 5, y2 - y1 - 5, {fillStyle: '#cccccc77', lineWidth: 0});
+          } else if (index === 0) {
+            CanvasUtil.drawRect(store.$ctx, x1, y1 + 3, x2 - x1 - 2, y2 - y1 - 3, {fillStyle: '#cccccc77', lineWidth: 0});
+          } else if (index === splitedCellAreas.length - 1) {
+            CanvasUtil.drawRect(store.$ctx, x1 + 3, y1, x2 - x1 - 5, y2 - y1 - 2, {fillStyle: '#cccccc77', lineWidth: 0});
+          } else {
+            CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
+          }
+        });
 
       } else {
+
         const {x1, x2, y1, y2} = totalArea;
         CanvasUtil.drawRect(
           store.$ctx,
@@ -113,5 +128,23 @@ export class SelectAreaDrawer extends BaseDrawer {
     });
 
     return areaArr;
+  }
+
+  private drawDeselectedCellArea(deselectedCellArea: CellArea) {
+    // console.log('draw deselect cell area', deselectedCellArea);
+    if (deselectedCellArea == null) {
+      return ;
+    }
+
+    const totalArea = this.computeArea(deselectedCellArea);
+    const {x1, x2, y1, y2} = totalArea;
+    CanvasUtil.drawRect(
+      store.$ctx,
+      x1,
+      y1,
+      x2 - x1,
+      y2 - y1,
+      {fillStyle: '#ffffff80', lineWidth: 2, strokeStyle: '#bdbdbd'}
+    );
   }
 }

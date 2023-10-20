@@ -18,9 +18,10 @@ class Operate {
     endPoint: Point
   } = {initOffsetY: 0, beginPoint: null, endPoint: null};
   private _selectCellState: {
-    beginCell: CellIndex,
-    endCell: CellIndex,
-  } = {beginCell: [-1, -1], endCell: [-1, -1]}
+    deselect: boolean, // 是否反选
+    beginCell: CellIndex, // 开始单元格
+    endCell: CellIndex, // 结束单元格
+  } = {deselect: false, beginCell: [-1, -1], endCell: [-1, -1]}
 
 
   get type(): OperateType {
@@ -47,11 +48,11 @@ class Operate {
     this._scrollVState = value;
   }
 
-  get selectCellState(): { beginCell: CellIndex; endCell: CellIndex } {
+  get selectCellState(): { deselect: boolean; beginCell: CellIndex; endCell: CellIndex } {
     return this._selectCellState;
   }
 
-  set selectCellState(value: { beginCell: CellIndex; endCell: CellIndex }) {
+  set selectCellState(value: { deselect: boolean; beginCell: CellIndex; endCell: CellIndex }) {
     this._selectCellState = value;
   }
 }
