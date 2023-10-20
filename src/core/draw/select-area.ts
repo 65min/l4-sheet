@@ -13,17 +13,18 @@ export class SelectAreaDrawer extends BaseDrawer {
 
   draw(): Area | Area[] | Area[][] {
     if (selectArea.selectedCellAreas.length === 1) {
-      return this.drawSingleArea(selectArea.selectedCellAreas[0], selectArea.selectedCell);
+      return this.drawSingleArea(selectArea.selectedCellAreas[0]);
     } else if (selectArea.selectedCellAreas.length > 1) {
-      return this.drawMultiArea(selectArea.selectedCellAreas, selectArea.selectedCell);
+      return this.drawMultiArea(selectArea.selectedCellAreas);
     }
     return [];
   }
 
-  private drawSingleArea(cellArea: CellArea, selectCell: CellIndex): Area {
+  private drawSingleArea(cellArea: CellArea): Area {
     const totalArea = this.computeArea(cellArea);
 
-    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...selectCell, ...selectCell]);
+    const selectCellAreaBeginCell: CellIndex = [cellArea[0], cellArea[1]];
+    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
 
     splitedCellAreas.forEach(item => {
       const itemArea = this.computeArea(item);
@@ -66,35 +67,38 @@ export class SelectAreaDrawer extends BaseDrawer {
     return AreaUtil.computeMinArea(areas);
   }
 
-  private drawMultiArea(selectCells: CellArea[], selectCell: CellIndex): Area[] {
+  private drawMultiArea(selectCellAreas: CellArea[]): Area[] {
 
     const areaArr = []
-    selectCells.forEach((selectCellArea: CellArea) => {
+    selectCellAreas.forEach((selectCellArea: CellArea, index: number) => {
       const totalArea = this.computeArea(selectCellArea);
-      const {x1, x2, y1, y2} = totalArea;
-      const containBeginCell = CellAreaUtil.cellAreaContainsCell(selectCellArea, selectCell);
-      if (containBeginCell) {
-        // CanvasUtil.drawRect(
-        //   store.$ctx,
-        //   x1 + 3,
-        //   y1 + 3,
-        //   x2 - x1 - 5,
-        //   y2 - y1 - 5,
-        //   {fillStyle: '#bbbbbb00', strokeStyle: '#ff0000', lineWidth: .5}
-        // );
-        CanvasUtil.drawLine(
-          store.$ctx,
-          [
-            Point.build(x1 + 2.5, y1 + 2.5),
-            Point.build(x2 - 1.5, y1 + 2.5),
-            Point.build(x2 - 1.5, y2 - 1.5),
-            Point.build(x1 + 2.5, y2 - 1.5),
-            Point.build(x1 + 2.5, y1 + 2.5),
-          ],
-          {strokeStyle: '#26a69a', lineWidth: 1}
-        );
+      if (index === selectCellAreas.length - 1) {
+        const selectCellAreaBeginCell: CellIndex = [selectCellArea[0], selectCellArea[1]];
+        const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(selectCellArea, [...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
+
+        {
+          const {x1, x2, y1, y2} = this.computeArea([...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
+          CanvasUtil.drawLine(
+            store.$ctx,
+            [
+              Point.build(x1 + 2.5, y1 + 2.5),
+              Point.build(x2 - 1.5, y1 + 2.5),
+              Point.build(x2 - 1.5, y2 - 1.5),
+              Point.build(x1 + 2.5, y2 - 1.5),
+              Point.build(x1 + 2.5, y1 + 2.5),
+            ],
+            {strokeStyle: '#26a69a', lineWidth: 1}
+          );
+        }
+
+        splitedCellAreas.forEach(item => {
+          const itemArea = this.computeArea(item);
+          const {x1, x2, y1, y2} = itemArea;
+          CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
+        })
 
       } else {
+        const {x1, x2, y1, y2} = totalArea;
         CanvasUtil.drawRect(
           store.$ctx,
           x1 + 3,
@@ -104,6 +108,7 @@ export class SelectAreaDrawer extends BaseDrawer {
           {fillStyle: '#bbbbbb50', lineWidth: 3}
         );
       }
+
       areaArr.push(totalArea);
     });
 

@@ -66,12 +66,12 @@ export default class MouseContentPlugin extends BasePlugin {
       const {beginCell, endCell} = operate.selectCellState;
       // selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
       if (selectArea.selectedCellAreas.length === 0) {
-        selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
+        // selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
+        selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
       } else {
         selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = CellAreaUtil.computeMinCellArea(beginCell, endCell);
       }
 
-      // controlStore.selectArea.draw();
       ViewUtil.refreshView();
       controlStore.selectArea.draw();
     }
@@ -117,9 +117,16 @@ export default class MouseContentPlugin extends BasePlugin {
         selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex]];
       } else {
         const cellArea: CellArea = [...cellIndex, ...cellIndex];
-        const existIndex = selectArea.selectedCellAreas.findIndex(item => item[0] === cellArea[0] && item[1] === cellArea[1] && item[2] === cellArea[2] && item[3] === cellArea[3]);
+        // const existIndex = selectArea.selectedCellAreas.findIndex(item => item[0] === cellArea[0] && item[1] === cellArea[1] && item[2] === cellArea[2] && item[3] === cellArea[3]);
+        const existIndex = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, cellIndex));
         if (existIndex >= 0) {
-          const removeCellArea = selectArea.selectedCellAreas.splice(existIndex, 1)[0];
+
+          const existSelectCellArea = selectArea.selectedCellAreas[existIndex];
+          const splitedCellArea = CellAreaUtil.splitWithoutTargetCell(existSelectCellArea, cellArea);
+          // 倒序排列
+          splitedCellArea.sort( () => -1);
+
+          const removeCellArea = selectArea.selectedCellAreas.splice(existIndex, 1, ...splitedCellArea)[0];
           if (CellAreaUtil.cellAreaContainsCell(removeCellArea, selectArea.selectedCell)) {
             const lastCellArea = selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1];
             selectArea.selectedCell = [lastCellArea[0], lastCellArea[1]];
@@ -151,7 +158,7 @@ export default class MouseContentPlugin extends BasePlugin {
   }
 
   private handleMouseupEvent(_event: MouseEvent) {
-    if (operate.type === 'select-cell') {
+    if (operate.type === 'select-cell' || operate.type === 'select-multi-cell') {
       operate.type = '';
       operate.selectCellState.beginCell = [-1, -1];
       operate.selectCellState.endCell = [-1, -1];
