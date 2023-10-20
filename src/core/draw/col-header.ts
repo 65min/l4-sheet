@@ -7,6 +7,7 @@ import {CanvasUtil} from '../utils/canvas.util.ts';
 import areaStore from '../store/area.store.ts';
 import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
+import {CellArea} from '../def/cell-area.ts';
 
 export class ColHeaderDrawer extends BaseDrawer {
 
@@ -37,7 +38,7 @@ export class ColHeaderDrawer extends BaseDrawer {
     this.areas = [];
 
     const selectAreaColIndexes = []
-    selectArea.selectedCellAreas.forEach((sa: [number, number, number, number]) => {
+    selectArea.selectedCellAreas.forEach((sa: CellArea) => {
       selectAreaColIndexes.push([sa[1], sa[3]]);
     });
 
@@ -71,7 +72,7 @@ export class ColHeaderDrawer extends BaseDrawer {
       if (this.hoverIndex === i) {
         CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
       } else {
-        CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: inSelectArea? '#dadada' : '#e9e9e9'})
+        CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: inSelectArea? '#dddddd' : '#e9e9e9'})
       }
 
       if ((x2 - x1) / 2 - 2 > 5) {

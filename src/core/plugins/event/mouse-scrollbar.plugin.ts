@@ -10,6 +10,7 @@ import config from '../../config';
 import areaStore from '../../store/area.store.ts';
 import selectArea from '../../store/select-area.ts';
 import controlStore from '../../store/control.store.ts';
+import {ViewUtil} from '../../utils/view.util.ts';
 
 
 export default class MouseScrollbarPlugin extends BasePlugin {
@@ -29,6 +30,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       operate.type = 'scroll-h';
       operate.scrollHState.beginPoint = mousedownPoint;
       operate.scrollHState.initOffsetX = control.hScroll.offsetX;
+      this.count = 0;
       return ;
     }
 
@@ -37,6 +39,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       operate.type = 'scroll-v';
       operate.scrollVState.beginPoint = mousedownPoint;
       operate.scrollVState.initOffsetY = control.vScroll.offsetY;
+      this.count = 0;
       return ;
     }
   }
@@ -119,32 +122,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
   }
 
   refreshView() {
-
-    areaStore.backgroundArea = control.background.draw();
-    areaStore.cellContentArea = control.cellContent.draw();
-    this.drawSelectCell();
-    areaStore.tableHeaderArea = control.tableHeader.draw();
-
-    areaStore.colHeaderArea = control.colHeader.draw();
-    areaStore.rowHeaderArea = control.rowHeader.draw();
-
-    areaStore.rowHeaderArea = control.rowHeader.draw();
-
-    if (control.hScroll) {
-      const [hScrollBarArea, hLeftBtnArea, hRightBtnArea, hScrollArea] = control.hScroll.draw();
-      areaStore.hScrollBarArea = hScrollBarArea;
-      areaStore.hScrollArea = hScrollArea;
-      areaStore.hScrollLArea = hLeftBtnArea;
-      areaStore.hScrollRArea = hRightBtnArea;
-    }
-
-    if (control.vScroll) {
-      const [vScrollBarArea, vLeftBtnArea, vRightBtnArea, vScrollArea] = control.vScroll.draw();
-      areaStore.vScrollBarArea = vScrollBarArea;
-      areaStore.vScrollArea = vScrollArea;
-      areaStore.vScrollLArea = vLeftBtnArea;
-      areaStore.vScrollRArea = vRightBtnArea;
-    }
+    ViewUtil.refreshView(this.drawSelectCell);
   }
 
   handleScroll(event: WheelEvent) {

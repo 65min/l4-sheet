@@ -1,6 +1,7 @@
 import {Point} from '../model/point.ts';
+import {CellIndex} from '../def/cell-area.ts';
 
-type OperateType = 'scroll-h' | 'scroll-v' | '';
+type OperateType = 'scroll-h' | 'scroll-v' | 'select-cell' | 'select-multi-cell' | '';
 
 
 class Operate {
@@ -16,6 +17,10 @@ class Operate {
     beginPoint: Point,
     endPoint: Point
   } = {initOffsetY: 0, beginPoint: null, endPoint: null};
+  private _selectCellState: {
+    beginCell: CellIndex,
+    endCell: CellIndex,
+  } = {beginCell: [-1, -1], endCell: [-1, -1]}
 
 
   get type(): OperateType {
@@ -40,6 +45,14 @@ class Operate {
 
   set scrollVState(value: { initOffsetY: number; beginPoint: Point; endPoint: Point }) {
     this._scrollVState = value;
+  }
+
+  get selectCellState(): { beginCell: CellIndex; endCell: CellIndex } {
+    return this._selectCellState;
+  }
+
+  set selectCellState(value: { beginCell: CellIndex; endCell: CellIndex }) {
+    this._selectCellState = value;
   }
 }
 

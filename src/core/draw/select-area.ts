@@ -6,20 +6,30 @@ import store from '../store';
 import areaStore from '../store/area.store.ts';
 import {Point} from '../model/point.ts';
 import {AreaUtil} from '../utils/area.util.ts';
+import {CellAreaUtil} from '../utils/cell-area.util.ts';
+import {CellArea, CellIndex} from '../def/cell-area.ts';
 
 export class SelectAreaDrawer extends BaseDrawer {
 
   draw(): Area | Area[] | Area[][] {
     if (selectArea.selectedCellAreas.length === 1) {
-      return this.drawSingleArea(selectArea.selectedCellAreas[0]);
+      return this.drawSingleArea(selectArea.selectedCellAreas[0], selectArea.selectedCell);
     } else if (selectArea.selectedCellAreas.length > 1) {
       return this.drawMultiArea(selectArea.selectedCellAreas, selectArea.selectedCell);
     }
     return [];
   }
 
-  private drawSingleArea(selectCell: [number, number, number, number]): Area {
-    const totalArea = this.computeArea(selectCell);
+  private drawSingleArea(cellArea: CellArea, selectCell: CellIndex): Area {
+    const totalArea = this.computeArea(cellArea);
+
+    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...selectCell, ...selectCell]);
+
+    splitedCellAreas.forEach(item => {
+      const itemArea = this.computeArea(item);
+      const {x1, x2, y1, y2} = itemArea;
+      CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
+    })
 
     const {x1, x2, y1, y2} = totalArea;
     CanvasUtil.drawLine(
@@ -36,7 +46,7 @@ export class SelectAreaDrawer extends BaseDrawer {
     return totalArea;
   }
 
-  private computeArea(selectCell: [number, number, number, number]): Area {
+  private computeArea(selectCell: CellArea): Area {
     // const area = selectArea.selectAreas[0];
     if (!selectCell) {
       return ;
@@ -56,20 +66,44 @@ export class SelectAreaDrawer extends BaseDrawer {
     return AreaUtil.computeMinArea(areas);
   }
 
-  private drawMultiArea(selectCells: [number, number, number, number][], selectCell: [number, number, number, number]): Area[] {
+  private drawMultiArea(selectCells: CellArea[], selectCell: CellIndex): Area[] {
 
     const areaArr = []
-    selectCells.forEach((selectCell: [number, number, number, number]) => {
-      const totalArea = this.computeArea(selectCell);
+    selectCells.forEach((selectCellArea: CellArea) => {
+      const totalArea = this.computeArea(selectCellArea);
       const {x1, x2, y1, y2} = totalArea;
-      CanvasUtil.drawRect(
-        store.$ctx,
-        x1 + 3,
-        y1 + 3,
-        x2 - x1 - 5,
-        y2 - y1 - 5,
-        {fillStyle: '#bbbbbb50', lineWidth: 3}
-      );
+      const containBeginCell = CellAreaUtil.cellAreaContainsCell(selectCellArea, selectCell);
+      if (containBeginCell) {
+        // CanvasUtil.drawRect(
+        //   store.$ctx,
+        //   x1 + 3,
+        //   y1 + 3,
+        //   x2 - x1 - 5,
+        //   y2 - y1 - 5,
+        //   {fillStyle: '#bbbbbb00', strokeStyle: '#ff0000', lineWidth: .5}
+        // );
+        CanvasUtil.drawLine(
+          store.$ctx,
+          [
+            Point.build(x1 + 2.5, y1 + 2.5),
+            Point.build(x2 - 1.5, y1 + 2.5),
+            Point.build(x2 - 1.5, y2 - 1.5),
+            Point.build(x1 + 2.5, y2 - 1.5),
+            Point.build(x1 + 2.5, y1 + 2.5),
+          ],
+          {strokeStyle: '#26a69a', lineWidth: 1}
+        );
+
+      } else {
+        CanvasUtil.drawRect(
+          store.$ctx,
+          x1 + 3,
+          y1 + 3,
+          x2 - x1 - 5,
+          y2 - y1 - 5,
+          {fillStyle: '#bbbbbb50', lineWidth: 3}
+        );
+      }
       areaArr.push(totalArea);
     });
 

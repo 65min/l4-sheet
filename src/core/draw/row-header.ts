@@ -5,6 +5,7 @@ import config from '../config';
 import {CanvasUtil} from '../utils/canvas.util.ts';
 import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
+import {CellArea} from '../def/cell-area.ts';
 
 
 export class RowHeaderDrawer extends BaseDrawer {
@@ -34,12 +35,12 @@ export class RowHeaderDrawer extends BaseDrawer {
     this.areas = [];
 
     const selectAreaRowIndexes = []
-    selectArea.selectedCellAreas.forEach((sa: [number, number, number, number]) => {
+    selectArea.selectedCellAreas.forEach((sa: CellArea) => {
       selectAreaRowIndexes.push([sa[0], sa[2]]);
     });
 
     // 背景
-    CanvasUtil.drawRect(this.$ctx, 0, config.colHeaderHeight, config.rowHeaderWidth, 1e10, {fillStyle: '#e9e9e9', strokeStyle: '#aeaeae'});
+    CanvasUtil.drawRect(this.$ctx, 0, config.colHeaderHeight, config.rowHeaderWidth, 1e10, {fillStyle: '#dddddd', strokeStyle: '#aeaeae'});
 
     let offsetY = config.colHeaderHeight;
     for (let i = 0; i < this.num; i++) {

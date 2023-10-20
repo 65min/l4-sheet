@@ -1,9 +1,10 @@
+import {CellArea, CellIndex} from '../def/cell-area.ts';
 
 class SelectArea {
   rowIndex: number;
   colIndex: number;
-  selectedCell: [number, number];
-  selectedCellAreas: [number, number, number, number][];
+  selectedCell: CellIndex;
+  selectedCellAreas: CellArea[];
 }
 
 const selectArea: SelectArea = {
@@ -12,5 +13,5 @@ const selectArea: SelectArea = {
   selectedCell: [-1, -1],
   selectedCellAreas: []
 }
-// window.selectArea = selectArea;
+window.selectArea = selectArea;
 export default selectArea;

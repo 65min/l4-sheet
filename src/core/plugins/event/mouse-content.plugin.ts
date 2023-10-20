@@ -9,6 +9,9 @@ import selectArea from '../../store/select-area.ts';
 import operate from '../../store/operate.ts';
 import areaStore from '../../store/area.store.ts';
 import controlStore from '../../store/control.store.ts';
+import {CellAreaUtil} from '../../utils/cell-area.util.ts';
+import {CellArea, CellIndex} from '../../def/cell-area.ts';
+import {ViewUtil} from '../../utils/view.util.ts';
 
 export default class MouseContentPlugin extends BasePlugin {
 
@@ -20,10 +23,13 @@ export default class MouseContentPlugin extends BasePlugin {
 
   private initContentEvent() {
     this.$target.addEventListener('mousemove', this.handleMousemoveEvent.bind(this));
+
     this.$target.addEventListener('mousedown', this.handleMousedownEvent.bind(this));
+    this.$target.addEventListener('mouseup', this.handleMouseupEvent.bind(this));
+    this.$target.addEventListener('mousemove', this.handleMousemoveSelectEvent.bind(this));
   }
 
-  private isEventInCell(event: MouseEvent): [number, number] | null {
+  private isEventInCell(event: MouseEvent): CellIndex | null {
     const point = new Point(event.offsetX, event.offsetY);
     for (let i = 0; i < areaStore.cellContentArea.length; i++) {
       const rowArea = areaStore.cellContentArea[i];
@@ -42,12 +48,32 @@ export default class MouseContentPlugin extends BasePlugin {
   }
 
   handleMousemoveEvent(event: MouseEvent) {
-    if (operate.type) {
+    const {type} = operate;
+    if (type === 'scroll-h' || type === 'scroll-v') {
       return ;
     }
     store.$canvas.style.cursor = 'default';
     if (this.isEventInCell(event)) {
       store.$canvas.style.cursor = 'cell';
+    }
+
+  }
+
+  handleMousemoveSelectEvent(event: MouseEvent) {
+    const {type} = operate;
+    if (type === 'select-cell') {
+      operate.selectCellState.endCell = this.isEventInCell(event);
+      const {beginCell, endCell} = operate.selectCellState;
+      // selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
+      if (selectArea.selectedCellAreas.length === 0) {
+        selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
+      } else {
+        selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = CellAreaUtil.computeMinCellArea(beginCell, endCell);
+      }
+
+      // controlStore.selectArea.draw();
+      ViewUtil.refreshView();
+      controlStore.selectArea.draw();
     }
   }
 
@@ -63,7 +89,7 @@ export default class MouseContentPlugin extends BasePlugin {
     controlStore.cellContent.drawCell(ri + 1, ci + 1);
   }
 
-  private revertCells(selectCell: [number, number, number, number]) {
+  private revertCells(selectCell: CellArea) {
     const [cri, cci] = selectCell;
     if (cri >= 0 && cci >= 0) {
       this.drawNearbyCells(cri, cci);
@@ -82,6 +108,7 @@ export default class MouseContentPlugin extends BasePlugin {
   private handleMousedownEvent(event: MouseEvent) {
     const cellIndex = this.isEventInCell(event);
     if (cellIndex) {
+      ViewUtil.refreshView();
       // const [cri, cci] = selectArea.selectCell;
       selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
       selectArea.selectedCellAreas = selectArea.selectedCellAreas || [];
@@ -89,13 +116,17 @@ export default class MouseContentPlugin extends BasePlugin {
         selectArea.selectedCell = cellIndex;
         selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex]];
       } else {
-        selectArea.selectedCell = cellIndex;
-        const cellArea: [number, number, number, number] = [...cellIndex, ...cellIndex];
+        const cellArea: CellArea = [...cellIndex, ...cellIndex];
         const existIndex = selectArea.selectedCellAreas.findIndex(item => item[0] === cellArea[0] && item[1] === cellArea[1] && item[2] === cellArea[2] && item[3] === cellArea[3]);
         if (existIndex >= 0) {
-          selectArea.selectedCellAreas.splice(existIndex, 1);
+          const removeCellArea = selectArea.selectedCellAreas.splice(existIndex, 1)[0];
+          if (CellAreaUtil.cellAreaContainsCell(removeCellArea, selectArea.selectedCell)) {
+            const lastCellArea = selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1];
+            selectArea.selectedCell = [lastCellArea[0], lastCellArea[1]];
+          }
         } else {
           selectArea.selectedCellAreas.push(cellArea);
+          selectArea.selectedCell = cellIndex;
         }
       }
       controlStore.selectArea.draw();
@@ -108,6 +139,22 @@ export default class MouseContentPlugin extends BasePlugin {
       if (hScroll) {
         hScroll.draw();
       }
+
+      if (event.ctrlKey) {
+        operate.type = 'select-multi-cell';
+      } else {
+        operate.type = 'select-cell';
+      }
+      operate.selectCellState.beginCell = cellIndex;
+      operate.selectCellState.endCell = cellIndex;
+    }
+  }
+
+  private handleMouseupEvent(_event: MouseEvent) {
+    if (operate.type === 'select-cell') {
+      operate.type = '';
+      operate.selectCellState.beginCell = [-1, -1];
+      operate.selectCellState.endCell = [-1, -1];
     }
   }
 
