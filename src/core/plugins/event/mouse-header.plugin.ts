@@ -125,10 +125,9 @@ export default class MouseHeaderPlugin extends BasePlugin {
       } else {
         const bottomRowHeaderArea = new Area(rowHeaderArea.x1, rowHeaderArea.y2 - 3, rowHeaderArea.x2, rowHeaderArea.y2);
         if (AreaUtil.inArea(point, bottomRowHeaderArea)) {
-          // debugger;
           return i;
         }
-        const topRowHeaderArea = new Area(rowHeaderArea.x1, rowHeaderArea.y1, rowHeaderArea.x1, rowHeaderArea.y2 + 3);
+        const topRowHeaderArea = new Area(rowHeaderArea.x1, rowHeaderArea.y1, rowHeaderArea.x2, rowHeaderArea.y1 + 3);
         if (AreaUtil.inArea(point, topRowHeaderArea)) {
           return i - 1;
         }

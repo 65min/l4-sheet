@@ -22,6 +22,6 @@ const state = {
   rows: {4: {h: 90}, 5: {h: 130}}
 }
 
-window.state = state;
+// window.state = state;
 
 export default state;

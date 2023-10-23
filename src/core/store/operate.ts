@@ -93,6 +93,6 @@ class Operate {
 
 const operate = new Operate();
 
-window.operate = operate;
+// window.operate = operate;
 
 export default operate;

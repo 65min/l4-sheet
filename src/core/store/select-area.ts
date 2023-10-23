@@ -15,5 +15,5 @@ const selectArea: SelectArea = {
   selectedCellAreas: [],
   deSelectedCellArea: null
 }
-window.selectArea = selectArea;
+// window.selectArea = selectArea;
 export default selectArea;

@@ -34,6 +34,6 @@ const areaStore = {
   backgroundArea
 };
 
-window.areaStore = areaStore;
+// window.areaStore = areaStore;
 
 export default areaStore;
