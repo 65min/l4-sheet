@@ -13,6 +13,8 @@ import {VScroll} from '../draw/v-scroll.ts';
 import config from '../config';
 import {SelectAreaDrawer} from '../draw/select-area.ts';
 import areaStore from '../store/area.store.ts';
+import cacheStore from '../store/cache.store.ts';
+import {CacheUtil} from '../utils/cache.util.ts';
 //
 // (function () {
 //   if (window.customElements.get('l4-canvas') === undefined) {
@@ -88,6 +90,9 @@ export default class CanvasPlugin extends BasePlugin {
     store.$canvas = this.$canvas;
     state.canvasWidth = 1440;
     state.canvasHeight = 675;
+
+    cacheStore.colWidthArr = CacheUtil.computeCellWidth(state.colNum);
+    cacheStore.rowHeightArr = CacheUtil.computeCellHeight(state.rowNum);
 
     this.$ctx = this.$canvas.getContext('2d')!;
     store.$ctx = this.$ctx;

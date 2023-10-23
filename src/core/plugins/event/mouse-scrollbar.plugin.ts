@@ -122,7 +122,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
   }
 
   refreshView() {
-    ViewUtil.refreshView(this.drawSelectCell);
+    ViewUtil.refreshView(ViewUtil.drawSelectCell);
   }
 
   handleScroll(event: WheelEvent) {
@@ -215,21 +215,5 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     this.$target.addEventListener('mousedown', this.handleScrollBtn.bind(this))
   }
 
-  private drawSelectCell() {
-    const [cri, cci] = selectArea.selectedCell;
-    if (cri >= 0 && cci >= 0) {
-      // controlStore.cellContent.drawCell(cri, cci);
-      controlStore.selectArea.draw();
-      controlStore.colHeader.draw();
-      controlStore.rowHeader.draw();
-      const {vScroll, hScroll} = controlStore;
-      if (vScroll) {
-        vScroll.draw();
-      }
-      if (hScroll) {
-        hScroll.draw();
-      }
-    }
-  }
 
 }

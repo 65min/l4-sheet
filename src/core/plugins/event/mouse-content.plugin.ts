@@ -30,7 +30,7 @@ export default class MouseContentPlugin extends BasePlugin {
     this.$target.addEventListener('mousemove', this.handleMousemoveSelectEvent.bind(this));
   }
 
-  private isEventInCell(event: MouseEvent): CellIndex | null {
+  private isEventInCell(event: { offsetX: number, offsetY: number }): CellIndex | null {
     const point = new Point(event.offsetX, event.offsetY);
     for (let i = 0; i < areaStore.cellContentArea.length; i++) {
       const rowArea = areaStore.cellContentArea[i];
@@ -50,10 +50,12 @@ export default class MouseContentPlugin extends BasePlugin {
 
   handleMousemoveEvent(event: MouseEvent) {
     const {type} = operate;
-    if (type === 'scroll-h' || type === 'scroll-v') {
+    if (type === 'scroll-h' || type === 'scroll-v' || type === 'resize-col' || type === 'resize-row') {
       return ;
     }
-    store.$canvas.style.cursor = 'default';
+    if (store.$canvas.style.cursor !== 'row-resize' && store.$canvas.style.cursor !== 'col-resize') {
+      store.$canvas.style.cursor = 'default';
+    }
     if (this.isEventInCell(event)) {
       store.$canvas.style.cursor = 'cell';
     }
@@ -74,7 +76,7 @@ export default class MouseContentPlugin extends BasePlugin {
         // selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
         selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
       } else {
-        selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = CellAreaUtil.computeMinCellArea(beginCell, endCell);
+        selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = [...beginCell, ...endCell];
       }
 
       ViewUtil.refreshView();
@@ -87,19 +89,10 @@ export default class MouseContentPlugin extends BasePlugin {
       const {beginCell, endCell} = operate.selectCellState;
 
       // 开始单元格是否在选择区域内
-      // const beginInArea = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, beginCell)) >= 0;
-      // console.log(beginInArea)
       if (operate.selectCellState.deselect) {
-        // for (let i = selectArea.selectedCellAreas.length - 1; i >= 0; i --) {
-        //   const currentSelectedCellArea = selectArea.selectedCellAreas[i];
-        //   const splitedCellArea = CellAreaUtil.splitWithoutTargetCell(currentSelectedCellArea, [...beginCell, ...endCell]);
-        //   splitedCellArea.sort(() => -1);
-        //   selectArea.selectedCellAreas.splice(i, 1, ...splitedCellArea);
-        // }
         selectArea.deSelectedCellArea = [...beginCell, ...endCell];
-        // console.log(selectArea.deSelectedCellArea);
       } else {
-        // selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
+        console.log([...beginCell, ...endCell])
         selectArea.selectedCellAreas.splice(selectArea.selectedCellAreas.length - 1, 1, [...beginCell, ...endCell])
       }
 

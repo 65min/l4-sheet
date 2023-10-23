@@ -16,9 +16,12 @@ const state = {
   offsetX: 0,
   offsetY: 0,
   emptyHeight: 0,
-  emptyWidth: 0
+  emptyWidth: 0,
+
+  cols: {1: {w: 100}, 3: {w: 160}},
+  rows: {4: {h: 90}, 5: {h: 130}}
 }
 
-// window.state = state;
+window.state = state;
 
 export default state;

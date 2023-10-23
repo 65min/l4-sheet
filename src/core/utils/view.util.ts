@@ -1,5 +1,7 @@
 import areaStore from '../store/area.store.ts';
 import control from '../store/control.store.ts';
+import selectArea from '../store/select-area.ts';
+import controlStore from '../store/control.store.ts';
 
 export class ViewUtil {
 
@@ -36,6 +38,23 @@ export class ViewUtil {
       areaStore.vScrollArea = vScrollArea;
       areaStore.vScrollLArea = vLeftBtnArea;
       areaStore.vScrollRArea = vRightBtnArea;
+    }
+  }
+
+  public static drawSelectCell() {
+    const [cri, cci] = selectArea.selectedCell;
+    if (cri >= 0 && cci >= 0) {
+      // controlStore.cellContent.drawCell(cri, cci);
+      controlStore.selectArea.draw();
+      controlStore.colHeader.draw();
+      controlStore.rowHeader.draw();
+      const {vScroll, hScroll} = controlStore;
+      if (vScroll) {
+        vScroll.draw();
+      }
+      if (hScroll) {
+        hScroll.draw();
+      }
     }
   }
 }

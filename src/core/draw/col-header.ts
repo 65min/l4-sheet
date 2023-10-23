@@ -8,6 +8,7 @@ import areaStore from '../store/area.store.ts';
 import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
 import {CellArea} from '../def/cell-area.ts';
+import cacheStore from '../store/cache.store.ts';
 
 export class ColHeaderDrawer extends BaseDrawer {
 
@@ -48,7 +49,7 @@ export class ColHeaderDrawer extends BaseDrawer {
     let offsetX = config.rowHeaderWidth;
     for (let i = 0; i < this.num; i++) {
 
-      let width = config.colWidth;
+      let width = cacheStore.colWidthArr[i];
       let x1 = (offsetX - state.offsetX) | 0;
       const x2 = x1 + width;
 
@@ -63,17 +64,17 @@ export class ColHeaderDrawer extends BaseDrawer {
       }
 
       if (x2 < config.rowHeaderWidth) {
-        offsetX = offsetX + config.colWidth;
+        offsetX = offsetX + cacheStore.colWidthArr[i];
         this.areas.push(null);
         continue;
       }
 
       const inSelectArea = selectAreaColIndexes.findIndex(item => item[0] <= i && item[1] >= i) >= 0;
-      if (this.hoverIndex === i) {
-        CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
-      } else {
+      // if (this.hoverIndex === i) {
+      //   CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
+      // } else {
         CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: inSelectArea? '#dddddd' : '#e9e9e9'})
-      }
+      // }
 
       if ((x2 - x1) / 2 - 2 > 5) {
         this.$ctx.fillStyle = '#787878';
@@ -86,7 +87,7 @@ export class ColHeaderDrawer extends BaseDrawer {
 
       const area = new Area(x1, 0, x1 + width, config.colHeaderHeight);
       this.areas.push(area);
-      offsetX = offsetX + config.colWidth;
+      offsetX = offsetX + cacheStore.colWidthArr[i];
 
       if (inSelectArea) {
         CanvasUtil.drawLine(

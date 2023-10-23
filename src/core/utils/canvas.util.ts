@@ -89,4 +89,43 @@ export class CanvasUtil {
 
     ctx.stroke();
   }
+
+  /**
+   * 绘制备注文本
+   *
+   * @param ctx
+   * @param text
+   * @param point
+   * @param style
+   */
+  public static drawRemark(ctx: CanvasRenderingContext2D, text: string, point: Point, style: Style) {
+    const {width} = ctx.measureText(text);
+
+    const textFillStyle = style.fillStyle;
+
+    ctx.shadowOffsetX = 8;
+    ctx.shadowOffsetY = 3;
+    ctx.shadowBlur = 3;
+    ctx.shadowColor = '#aaaaaaaa';
+    style.fillStyle = style.fillStyle || '#ffffff';
+    style.strokeStyle = style.strokeStyle || '#aaaaaa';
+    CanvasUtil.drawRect(ctx, point.x, point.y, width + 12, 24, style);
+
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = '#ffffffff';
+
+    ctx.fillStyle = textFillStyle || '#565656';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'middle';
+
+    if (style.font) {
+      ctx.font = style.font;
+    } else {
+      ctx.font = '12px Microsoft YaHei';
+    }
+
+    ctx.fillText(text, point.x + 5, point.y + 14);
+  }
 }
