@@ -101,6 +101,14 @@ export class CanvasUtil {
   public static drawRemark(ctx: CanvasRenderingContext2D, text: string, point: Point, style: Style) {
     const {width} = ctx.measureText(text);
 
+    point = Point.build(point.x, point.y);
+    if (point.x + width > state.canvasWidth) {
+      point.x = state.canvasWidth - width - 50;
+    }
+    if (point.y + 12 > state.canvasHeight) {
+      point.y = state.canvasHeight - 12 - 50;
+    }
+
     const textFillStyle = style.fillStyle;
 
     ctx.shadowOffsetX = 8;

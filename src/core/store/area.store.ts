@@ -16,7 +16,25 @@ const rowHeaderArea: Area[] = null;
 const cellContentArea: Area[][] = null;
 const backgroundArea: Area = null;
 
-const areaStore = {
+interface AreaStore {
+  hScrollArea: Area;
+  hScrollBarArea: Area;
+  hScrollLArea: Area;
+  hScrollRArea: Area;
+  vScrollArea: Area;
+  vScrollBarArea: Area;
+  vScrollLArea: Area;
+  vScrollRArea: Area;
+
+  tableHeaderArea: Area;
+  colHeaderArea: Area[];
+  rowHeaderArea: Area[]
+
+  cellContentArea: Area[][];
+  backgroundArea: Area;
+}
+
+let areaStore: AreaStore = {
   hScrollArea,
   hScrollBarArea,
   hScrollLArea,
@@ -34,6 +52,11 @@ const areaStore = {
   backgroundArea
 };
 
+const queue: AreaStore[] = [];
 // window.areaStore = areaStore;
 
 export default areaStore;
+
+export function setAreaStore(newAreaStore: AreaStore) {
+  areaStore = newAreaStore;
+}
