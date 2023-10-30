@@ -1,11 +1,11 @@
-import {RowHeaderDrawer} from '../draw/row-header.ts';
-import {ColHeaderDrawer} from '../draw/col-header.ts';
-import {CellContentDrawer} from '../draw/cell-content.ts';
-import {TableHeaderDrawer} from '../draw/table-header.ts';
-import {BackgroundDrawer} from '../draw/background.ts';
-import {SelectAreaDrawer} from '../draw/select-area.ts';
-import {HScroll} from '../draw/h-scroll.ts';
-import {VScroll} from '../draw/v-scroll.ts';
+import {RowHeaderDrawer} from '../draw/row-header.draw.ts';
+import {ColHeaderDrawer} from '../draw/col-header.draw.ts';
+import {CellContentDrawer} from '../draw/cell-content.draw.ts';
+import {TableHeaderDrawer} from '../draw/table-header.draw.ts';
+import {BackgroundDrawer} from '../draw/background.draw.ts';
+import {SelectAreaDrawer} from '../draw/select-area.draw.ts';
+import {HScrollDraw} from '../draw/h-scroll.draw.ts';
+import {VScrollDraw} from '../draw/v-scroll.draw.ts';
 
 const tableHeader: TableHeaderDrawer = null;
 const rowHeader: RowHeaderDrawer = null;
@@ -15,8 +15,8 @@ const background: BackgroundDrawer = null;
 const selectArea: SelectAreaDrawer = null;
 
 
-const hScroll: HScroll = null;
-const vScroll: VScroll = null;
+const hScroll: HScrollDraw = null;
+const vScroll: VScrollDraw = null;
 
 export default {
   tableHeader,

@@ -8,8 +8,6 @@ import state from '../../store/state.ts';
 import {CanvasUtil} from '../../utils/canvas.util.ts';
 import config from '../../config';
 import areaStore from '../../store/area.store.ts';
-import selectArea from '../../store/select-area.ts';
-import controlStore from '../../store/control.store.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
 
 
@@ -83,6 +81,9 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       state.offsetY = totalOffsetY / state.vScrollRatio;
       if (state.offsetY > state.contentHeight - 100) {
         state.offsetY = state.contentHeight - 100;
+        if (state.offsetY < 0) {
+          debugger;
+        }
       }
       control.vScroll.offsetY = state.offsetY * state.vScrollRatio;
       state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);

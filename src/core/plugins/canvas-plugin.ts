@@ -1,20 +1,21 @@
 import {PluginType} from './plugin-type.enum.ts';
 import BasePlugin from './base-plugin.ts';
-import {TableHeaderDrawer} from '../draw/table-header.ts';
-import {ColHeaderDrawer} from '../draw/col-header.ts';
-import {RowHeaderDrawer} from '../draw/row-header.ts';
-import {CellContentDrawer} from '../draw/cell-content.ts';
+import {TableHeaderDrawer} from '../draw/table-header.draw.ts';
+import {ColHeaderDrawer} from '../draw/col-header.draw.ts';
+import {RowHeaderDrawer} from '../draw/row-header.draw.ts';
+import {CellContentDrawer} from '../draw/cell-content.draw.ts';
 import state from '../store/state.ts';
-import {HScroll} from '../draw/h-scroll.ts';
+import {HScrollDraw} from '../draw/h-scroll.draw.ts';
 import store from '../store';
-import {BackgroundDrawer} from '../draw/background.ts';
+import {BackgroundDrawer} from '../draw/background.draw.ts';
 import control from '../store/control.store.ts';
-import {VScroll} from '../draw/v-scroll.ts';
+import {VScrollDraw} from '../draw/v-scroll.draw.ts';
 import config from '../config';
-import {SelectAreaDrawer} from '../draw/select-area.ts';
+import {SelectAreaDrawer} from '../draw/select-area.draw.ts';
 import areaStore from '../store/area.store.ts';
 import cacheStore from '../store/cache.store.ts';
 import {CacheUtil} from '../utils/cache.util.ts';
+import {Area} from '../model/area.ts';
 //
 // (function () {
 //   if (window.customElements.get('l4-canvas') === undefined) {
@@ -61,9 +62,9 @@ export default class CanvasPlugin extends BasePlugin {
 
   cellContent: CellContentDrawer | undefined;
 
-  hScroll: HScroll | undefined;
+  hScroll: HScrollDraw | undefined;
 
-  vScroll: VScroll | undefined;
+  vScroll: VScrollDraw | undefined;
 
   selectArea: SelectAreaDrawer | undefined;
 
@@ -91,8 +92,17 @@ export default class CanvasPlugin extends BasePlugin {
     state.canvasWidth = 1440;
     state.canvasHeight = 675;
 
-    cacheStore.colWidthArr = CacheUtil.computeCellWidth(state.colNum);
-    cacheStore.rowHeightArr = CacheUtil.computeCellHeight(state.rowNum);
+    // const widthArr = CacheUtil.computeColWidth(state.colNum);
+    // cacheStore.colWidthArr = widthArr[0];
+    // cacheStore.totalColWidthArr = widthArr[1];
+    // const heightArr = CacheUtil.computeRowHeight(state.rowNum);
+    // cacheStore.rowHeightArr = heightArr[0];
+    // cacheStore.totalRowHeightArr = heightArr[1];
+    areaStore.cellContentArea = [];
+    for (let i = 0; i <= state.rowNum; i++) {
+      areaStore.cellContentArea.push(new Array(state.colNum).fill(null));
+    }
+    CacheUtil.setWidthHeightArr(state.rowNum, state.colNum);
 
     this.$ctx = this.$canvas.getContext('2d')!;
     store.$ctx = this.$ctx;
@@ -138,7 +148,7 @@ export default class CanvasPlugin extends BasePlugin {
       state.vScrollWidth = config.scroll.width;
       state.viewWidth = state.viewWidth - config.scroll.width;
 
-      this.hScroll = new HScroll(this.$ctx);
+      this.hScroll = new HScrollDraw(this.$ctx);
       control.hScroll = this.hScroll;
       const [hScrollBarArea, leftBtnArea, rightBtnArea, hScrollArea] = this.hScroll.draw();
       areaStore.hScrollBarArea = hScrollBarArea;
@@ -150,7 +160,7 @@ export default class CanvasPlugin extends BasePlugin {
       state.hScrollHeight = config.scroll.width;
       state.viewHeight = state.viewHeight - config.scroll.width;
 
-      this.vScroll = new VScroll(this.$ctx);
+      this.vScroll = new VScrollDraw(this.$ctx);
       control.vScroll = this.vScroll;
       const [vScrollBarArea, leftBtnArea, rightBtnArea, vScrollArea] = this.vScroll.draw();
       areaStore.vScrollBarArea = vScrollBarArea;

@@ -13,6 +13,7 @@ import state from '../../store/state.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
 import {CanvasUtil} from '../../utils/canvas.util.ts';
 import config from '../../config';
+import {CacheUtil} from '../../utils/cache.util.ts';
 
 export default class MouseHeaderPlugin extends BasePlugin {
 
@@ -201,6 +202,7 @@ export default class MouseHeaderPlugin extends BasePlugin {
       state.cols[resizeIndex].w = cacheStore.colWidthArr[resizeIndex];
 
       ViewUtil.refreshView(ViewUtil.drawSelectCell);
+      CacheUtil.setWidthHeightArr(state.rowNum, state.colNum);
 
       CanvasUtil.drawRemark(store.$ctx, `列宽${width}px`, Point.build(operate.resizeColState.beginX + 30, config.colHeaderHeight), {});
     } else if (operate.type === 'resize-row') {
@@ -221,6 +223,7 @@ export default class MouseHeaderPlugin extends BasePlugin {
       state.rows[resizeIndex].h = cacheStore.rowHeightArr[resizeIndex];
 
       ViewUtil.refreshView(ViewUtil.drawSelectCell);
+      CacheUtil.setWidthHeightArr(state.rowNum, state.colNum);
 
       CanvasUtil.drawRemark(store.$ctx, `行高${height}px`, Point.build(config.rowHeaderWidth, operate.resizeRowState.beginY + 30), {});
     }

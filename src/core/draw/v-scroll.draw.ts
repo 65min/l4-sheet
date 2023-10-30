@@ -1,4 +1,4 @@
-import {BaseDrawer} from './base.ts';
+import {BaseDrawer} from './base.draw.ts';
 import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 import config from '../config';
@@ -20,7 +20,7 @@ const BAR_COLOR__HOVER = '#9e9e9e';
 /**
  * 横向滚动条
  */
-export class VScroll extends BaseDrawer {
+export class VScrollDraw extends BaseDrawer {
 
   private barLength: number = 0;
 

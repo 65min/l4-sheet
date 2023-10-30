@@ -52,8 +52,8 @@ let areaStore: AreaStore = {
   backgroundArea
 };
 
-const queue: AreaStore[] = [];
-// window.areaStore = areaStore;
+// const queue: AreaStore[] = [];
+window.areaStore = areaStore;
 
 export default areaStore;
 

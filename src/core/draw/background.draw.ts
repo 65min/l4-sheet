@@ -1,4 +1,4 @@
-import {BaseDrawer} from './base.ts';
+import {BaseDrawer} from './base.draw.ts';
 import {Area} from '../model/area.ts';
 import state from '../store/state.ts';
 

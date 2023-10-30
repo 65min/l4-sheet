@@ -1,8 +1,8 @@
 
 
 const state = {
-  colNum: 255,
-  rowNum: 3234,
+  colNum: 123,
+  rowNum: 32112,
   canvasWidth: 0, // canvas组件宽度
   canvasHeight: 0,
   contentWidth: 0, // 单元格宽度

@@ -1,4 +1,4 @@
-import {BaseDrawer} from './base.ts';
+import {BaseDrawer} from './base.draw.ts';
 import {Area} from '../model/area.ts';
 import config from '../config';
 import {CanvasUtil} from '../utils/canvas.util.ts';

@@ -1,33 +1,53 @@
 import state from '../store/state.ts';
 import config from '../config';
+import cacheStore from '../store/cache.store.ts';
 
 export class CacheUtil {
 
-  public static computeCellWidth(colNum: number): number[] {
+  public static computeColWidth(colNum: number): [number[], number[]] {
 
-    const cellWidthArr: number[] = [];
+    const colWidthArr: number[] = [];
+    const totalWidthArr: number[] = [];
+    let width = 0;
     for (let i = 0; i < colNum; i++) {
-      let cellWidth = state.cols[i]?.w;
-      if (cellWidth === undefined) {
-        cellWidth = config.colWidth;
+      let colWidth = state.cols[i]?.w;
+      if (colWidth === undefined) {
+        colWidth = config.colWidth;
       }
-      cellWidthArr[i] = cellWidth;
+      colWidthArr[i] = colWidth;
+
+      width = width + colWidth;
+      totalWidthArr.push(width);
     }
 
-    return cellWidthArr;
+    return [colWidthArr, totalWidthArr];
   }
-  public static computeCellHeight(rowNum: number): number[] {
+  public static computeRowHeight(rowNum: number): [number[], number[]] {
 
-    const cellHeightArr: number[] = [];
+    const colHeightArr: number[] = [];
+    const totalHeightArr: number[] = [];
+    let height = 0;
     for (let i = 0; i < rowNum; i++) {
-      let cellHeight = state.rows[i]?.h;
-      if (cellHeight === undefined) {
-        cellHeight = config.rowHeight;
+      let rowHeight = state.rows[i]?.h;
+      if (rowHeight === undefined) {
+        rowHeight = config.rowHeight;
       }
-      cellHeightArr[i] = cellHeight;
+      colHeightArr[i] = rowHeight;
+
+      height = height + rowHeight;
+      totalHeightArr.push(height);
     }
 
-    return cellHeightArr;
+    return [colHeightArr, totalHeightArr];
+  }
+
+  public static setWidthHeightArr(rowNum: number, colNum: number) {
+    const widthArr = CacheUtil.computeColWidth(colNum);
+    cacheStore.colWidthArr = widthArr[0];
+    cacheStore.totalColWidthArr = widthArr[1];
+    const heightArr = CacheUtil.computeRowHeight(rowNum);
+    cacheStore.rowHeightArr = heightArr[0];
+    cacheStore.totalRowHeightArr = heightArr[1];
   }
 
 }
