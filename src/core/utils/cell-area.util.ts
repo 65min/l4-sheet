@@ -25,6 +25,15 @@ export class CellAreaUtil {
     return [Math.min(r1, r2), Math.min(c1, c2), Math.max(r1, r2), Math.max(c1, c2)];
   }
 
+  public static normalizeCellarea(cellArea: CellArea): CellArea {
+    return [
+      Math.min(cellArea[0], cellArea[2]),
+      Math.min(cellArea[1], cellArea[3]),
+      Math.max(cellArea[0], cellArea[2]),
+      Math.max(cellArea[1], cellArea[3]),
+    ];
+  }
+
   /**
    *
    * @param cellArea

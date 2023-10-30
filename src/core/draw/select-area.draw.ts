@@ -8,6 +8,7 @@ import {Point} from '../model/point.ts';
 import {AreaUtil} from '../utils/area.util.ts';
 import {CellAreaUtil} from '../utils/cell-area.util.ts';
 import {CellArea, CellIndex} from '../def/cell-area.ts';
+import controlStore from '../store/control.store.ts';
 
 export class SelectAreaDrawer extends BaseDrawer {
 
@@ -25,6 +26,13 @@ export class SelectAreaDrawer extends BaseDrawer {
   private drawSingleArea(cellArea: CellArea): Area {
     const totalArea = this.computeArea(cellArea);
 
+    const beginRow = controlStore.cellContent.beginRow;
+    const endRow = controlStore.cellContent.endRow;
+    const beginCol = controlStore.cellContent.beginCol;
+    const endCol = controlStore.cellContent.endCol;
+
+    const normalizeCellArea = CellAreaUtil.normalizeCellarea(cellArea);
+
     const selectCellAreaBeginCell: CellIndex = [cellArea[0], cellArea[1]];
     const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
 
@@ -35,16 +43,53 @@ export class SelectAreaDrawer extends BaseDrawer {
     })
 
     const {x1, x2, y1, y2} = totalArea;
-    CanvasUtil.drawLine(
-      store.$ctx,
-      [
-        Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5),
-        Point.build(x2 + .5, y1 + .5), Point.build(x2 + .5, y2 + .5),
-        Point.build(x2 + .5, y2 + .5), Point.build(x1 + .5, y2 + .5),
-        Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5),
-      ],
-      {strokeStyle: '#26a69a', lineWidth: 3}
-    );
+
+    if (normalizeCellArea[0] >= beginRow && normalizeCellArea[0] <= endRow) {
+      CanvasUtil.drawLine(
+        store.$ctx,
+        [
+          Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // top
+        ],
+        {strokeStyle: '#26a69a', lineWidth: 3}
+      );
+    }
+    if (normalizeCellArea[1] >= beginCol && normalizeCellArea[1] <= endCol) {
+      CanvasUtil.drawLine(
+        store.$ctx,
+        [
+          Point.build(x1 + .5, y1 + .5), Point.build(x1 + .5, y2 + .5), // left
+        ],
+        {strokeStyle: '#26a69a', lineWidth: 3}
+      );
+    }
+    if (normalizeCellArea[2] >= beginRow && normalizeCellArea[2] <= endRow) {
+      CanvasUtil.drawLine(
+        store.$ctx,
+        [
+          Point.build(x2 + .5, y2 + .5), Point.build(x1 + .5, y2 + .5), // bottom
+        ],
+        {strokeStyle: '#26a69a', lineWidth: 3}
+      );
+    }
+    if (normalizeCellArea[3] >= beginCol && normalizeCellArea[3] <= endCol) {
+      CanvasUtil.drawLine(
+        store.$ctx,
+        [
+          Point.build(x2 + .5, y1 + .5), Point.build(x2 + .5, y2 + .5), // right
+        ],
+        {strokeStyle: '#26a69a', lineWidth: 3}
+      );
+    }
+    // CanvasUtil.drawLine(
+    //   store.$ctx,
+    //   [
+    //     Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // top
+    //     Point.build(x2 + .5, y1 + .5), Point.build(x2 + .5, y2 + .5), // right
+    //     Point.build(x2 + .5, y2 + .5), Point.build(x1 + .5, y2 + .5), // bottom
+    //     Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // left
+    //   ],
+    //   {strokeStyle: '#26a69a', lineWidth: 3}
+    // );
 
     return totalArea;
   }
