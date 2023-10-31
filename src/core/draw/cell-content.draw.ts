@@ -21,9 +21,15 @@ export class CellContentDrawer extends BaseDrawer {
   deltaY: number;
   deltaCol: number;
 
-  beginRow: number;
+  offsetX: number;
+  offsetY: number;
+
+  restOffsetX: number = 0; // 遮挡单元格的被遮挡部分x长度
+  restOffsetY: number = 0; // 遮挡单元格的被遮挡部分y长度
+
+  beginRow: number = 0;
   endRow: number;
-  beginCol: number;
+  beginCol: number = 0;
   endCol: number;
 
   get width(): number {
@@ -48,62 +54,281 @@ export class CellContentDrawer extends BaseDrawer {
     this.colNum = colNum;
   }
 
-  public computeDeltaXY(offsetX: number, offsetY: number): [number, number, number, number] {
+  public computeDeltaXY(offsetX: number, offsetY: number, deltaX: number = 0, deltaY: number = 0): [number, number, number, number] {
+
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
+    deltaX = (deltaX || 0);
+    deltaY = (deltaY || 0);
+
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    this.deltaX = deltaX;
+    this.deltaY = deltaY;
+
+    if (deltaX || deltaY) {
+      // debugger;
+    }
+
+    if (deltaY >= 0) {
+      let totalHeight = -this.restOffsetY;
+      for (let i = this.beginRow; i < cacheStore.rowHeightArr.length; i++) {
+        totalHeight = totalHeight + cacheStore.rowHeightArr[i];
+        if (deltaY > totalHeight) {
+          this.beginRow = i;
+        } else {
+          break;
+        }
+      }
+      totalHeight = -this.restOffsetY;
+      for (let i = this.endRow; i < cacheStore.rowHeightArr.length; i++) {
+        totalHeight = totalHeight + cacheStore.rowHeightArr[i];
+        if (deltaY > totalHeight) {
+          this.endRow = i;
+        } else {
+          break;
+        }
+      }
+    } else {
+      let totalHeight = this.restOffsetY;
+      for (let i = this.beginRow; i >= 0; i--) {
+        totalHeight = totalHeight + cacheStore.rowHeightArr[i];
+        if (-deltaY > totalHeight) {
+          this.beginRow = i;
+        } else {
+          break;
+        }
+      }
+      totalHeight = this.restOffsetY;
+      for (let i = this.endRow; i >= 0; i--) {
+        totalHeight = totalHeight + cacheStore.rowHeightArr[i];
+        if (-deltaY > totalHeight) {
+          this.endRow = i;
+        } else {
+          break;
+        }
+      }
+    }
+
+    if (deltaX >= 0) {
+      let totalWidth = -this.restOffsetX;
+      for (let i = this.beginCol; i < cacheStore.colWidthArr.length; i++) {
+        totalWidth = totalWidth + cacheStore.colWidthArr[i];
+        if (deltaX > totalWidth) {
+          this.beginCol = i;
+        } else {
+          break;
+        }
+      }
+      totalWidth = -this.restOffsetX;
+      for (let i = this.endCol; i < cacheStore.colWidthArr.length; i++) {
+        totalWidth = totalWidth + cacheStore.colWidthArr[i];
+        if (deltaX > totalWidth) {
+          this.endCol = i;
+        } else {
+          break;
+        }
+      }
+    } else {
+      let totalWidth = this.restOffsetX;
+      for (let i = this.beginCol; i >= 0; i--) {
+        totalWidth = totalWidth + cacheStore.colWidthArr[i];
+        if (-deltaX > totalWidth) {
+          this.beginCol = i;
+        } else {
+          break;
+        }
+      }
+      totalWidth = this.restOffsetX;
+      for (let i = this.endCol; i >= 0; i--) {
+        totalWidth = totalWidth + cacheStore.colWidthArr[i];
+        if (-deltaX > totalWidth) {
+          this.endCol = i;
+        } else {
+          break;
+        }
+      }
+    }
 
     let beginRow, endRow, beginCol, endCol;
 
-    for (let i = 0; i < cacheStore.totalColWidthArr.length; i++) {
-      const totalColWidth = cacheStore.totalColWidthArr[i];
-      let preTotalColWidth: number;
-      if (i === 0) {
-        preTotalColWidth = 0;
-      } else {
-        preTotalColWidth = cacheStore.totalColWidthArr[i - 1];
-      }
+    if (deltaX >= 0) {
+      for (let i = (this.beginCol || 0); i < cacheStore.totalColWidthArr.length; i++) {
+        const totalColWidth = cacheStore.totalColWidthArr[i];
+        let preTotalColWidth: number;
+        if (i === 0) {
+          preTotalColWidth = 0;
+        } else {
+          preTotalColWidth = cacheStore.totalColWidthArr[i - 1];
+        }
 
-      if (preTotalColWidth <= offsetX && totalColWidth > offsetX) {
-        beginCol = i;
+        if (preTotalColWidth <= offsetX && totalColWidth > offsetX) {
+          beginCol = i;
+          this.restOffsetX = offsetX - preTotalColWidth;
+        }
+        if (totalColWidth > offsetX + state.viewWidth) {
+          endCol = i;
+          break;
+        }
       }
-      if (totalColWidth > offsetX + state.viewWidth) {
-        endCol = i;
-        break;
+      const rightOffsetX = offsetX + state.viewWidth;
+      for (let i = (this.endCol || 0); i < cacheStore.totalColWidthArr.length; i++) {
+        const totalColWidth = cacheStore.totalColWidthArr[i];
+        let preTotalColWidth: number;
+        if (i === 0) {
+          preTotalColWidth = 0;
+        } else {
+          preTotalColWidth = cacheStore.totalColWidthArr[i - 1];
+        }
+
+        if (preTotalColWidth <= rightOffsetX && totalColWidth > rightOffsetX) {
+          endCol = i;
+          break;
+        }
+      }
+    } else {
+      for (let i = (this.beginCol || 0); i >= 0; i--) {
+        const totalColWidth = cacheStore.totalColWidthArr[i];
+        let preTotalColWidth: number;
+        if (i === 0) {
+          preTotalColWidth = 0;
+        } else {
+          preTotalColWidth = cacheStore.totalColWidthArr[i - 1];
+        }
+
+        if (preTotalColWidth <= offsetX && totalColWidth > offsetX) {
+          beginCol = i;
+          this.restOffsetX = offsetX - preTotalColWidth;
+          break;
+        }
+      }
+      for (let i = (this.endCol || 0); i >= 0; i--) {
+        const totalColWidth = cacheStore.totalColWidthArr[i];
+        let preTotalColWidth: number;
+        if (i === 0) {
+          preTotalColWidth = 0;
+        } else {
+          preTotalColWidth = cacheStore.totalColWidthArr[i - 1];
+        }
+
+        if (preTotalColWidth <= (offsetX + state.viewWidth) && totalColWidth > (offsetX + state.viewWidth)) {
+          endCol = i;
+          break;
+        }
       }
     }
-    for (let i = 0; i < cacheStore.totalRowHeightArr.length; i++) {
-      const totalRowHeight = cacheStore.totalRowHeightArr[i];
-      let preTotalRowWidth: number;
-      if (i === 0) {
-        preTotalRowWidth = 0;
-      } else {
-        preTotalRowWidth = cacheStore.totalRowHeightArr[i - 1];
-      }
 
-      if (preTotalRowWidth <= offsetY && totalRowHeight > offsetY) {
-        beginRow = i;
+    if (deltaY >= 0) {
+      for (let i = (this.beginRow || 0); i < cacheStore.totalRowHeightArr.length; i++) {
+        const totalRowHeight = cacheStore.totalRowHeightArr[i];
+        let preTotalRowWidth: number;
+        if (i === 0) {
+          preTotalRowWidth = 0;
+        } else {
+          preTotalRowWidth = cacheStore.totalRowHeightArr[i - 1];
+        }
+
+        if (preTotalRowWidth <= offsetY && totalRowHeight > offsetY) {
+          beginRow = i;
+          this.restOffsetY = offsetY - preTotalRowWidth;
+        }
+        if (totalRowHeight > offsetY + state.viewHeight) {
+          endRow = i;
+          break;
+        }
       }
-      if (totalRowHeight > offsetY + state.viewHeight) {
-        endRow = i;
-        break;
+      const bottomOffsetY = offsetY + state.viewHeight;
+      for (let i = (this.endRow || 0); i < cacheStore.totalRowHeightArr.length; i++) {
+        const totalRowHeight = cacheStore.totalRowHeightArr[i];
+        let preTotalRowWidth: number;
+        if (i === 0) {
+          preTotalRowWidth = 0;
+        } else {
+          preTotalRowWidth = cacheStore.totalRowHeightArr[i - 1];
+        }
+
+        if (preTotalRowWidth <= bottomOffsetY && totalRowHeight > bottomOffsetY) {
+          endRow = i;
+          break;
+        }
+      }
+    } else {
+      for (let i = (this.beginRow || 0); i >= 0; i--) {
+        const totalRowHeight = cacheStore.totalRowHeightArr[i];
+        let preTotalRowWidth: number;
+        if (i === 0) {
+          preTotalRowWidth = 0;
+        } else {
+          preTotalRowWidth = cacheStore.totalRowHeightArr[i - 1];
+        }
+
+        if (preTotalRowWidth <= offsetY && totalRowHeight > offsetY) {
+          beginRow = i;
+          this.restOffsetY = offsetY - preTotalRowWidth;
+          break;
+        }
+      }
+      for (let i = (this.endRow || 0); i >= 0; i--) {
+        const totalRowHeight = cacheStore.totalRowHeightArr[i];
+        let preTotalRowWidth: number;
+        if (i === 0) {
+          preTotalRowWidth = 0;
+        } else {
+          preTotalRowWidth = cacheStore.totalRowHeightArr[i - 1];
+        }
+
+        if (preTotalRowWidth <= (offsetY + state.viewHeight) && totalRowHeight > (offsetY + state.viewHeight)) {
+          endRow = i;
+          break;
+        }
       }
     }
 
+    if (endRow === undefined) {
+      endRow = this.rowNum - 1;
+    }
+    if (endCol === undefined) {
+      endCol = this.colNum - 1;
+    }
+
+    // console.log(beginRow, endRow, beginCol, endCol)
     return [beginRow, endRow, beginCol, endCol];
   }
 
   draw(): Area[][] {
-
     this.areas = areaStore.cellContentArea;
-    const [beginRow, endRow, beginCol, endCol] = this.computeDeltaXY(state.offsetX, state.offsetY);
-    for (let i = 0; i <= endRow; i++) {
-      this.areas[i] = new Array(this.colNum).fill(null);
-    }
 
+    for (let i = this.beginRow; i <= this.endRow; i++) {
+      for (let j = this.beginCol; j <= this.endCol; j++) {
+        this.areas[i][j] = null;
+      }
+    }
+    // console.time('computeDeltaXY');
+    const [beginRow, endRow, beginCol, endCol] = this.computeDeltaXY(state.offsetX, state.offsetY, state.deltaX, state.deltaY);
+    // console.timeEnd('computeDeltaXY');
+    // console.time('initarray');
+
+    // console.timeEnd('initarray');
+    //
+    // console.time('draw cell');
+    // this.beginRow = beginRow;
     this.beginRow = beginRow;
     this.endRow = endRow;
     this.beginCol = beginCol;
     this.endCol = endCol;
+    // if (beginRow != undefined) {
+    //   this.beginRow = beginRow;
+    // }
+    // if (endRow != undefined) {
+    //   this.endRow = endRow;
+    // }
+    // // this.beginCol = beginCol;
+    // if (beginCol != undefined) {
+    //   this.beginCol = beginCol;
+    // }
+    // if (endCol != undefined) {
+    //   this.endCol = endCol;
+    // }
     for (let i = this.beginRow; i <= this.endRow; i ++) {
 
       let cellHeight = cacheStore.rowHeightArr[i];
@@ -127,7 +352,10 @@ export class CellContentDrawer extends BaseDrawer {
         this.areas[i][j] = new Area(x, y, x + cellWidth, y + cellHeight);
       }
     }
+    // console.timeEnd('draw cell');
 
+    state.deltaX = 0;
+    state.deltaY = 0;
     state.contentWidth = cacheStore.totalColWidthArr[cacheStore.totalColWidthArr.length - 1];
     state.contentHeight = cacheStore.totalRowHeightArr[cacheStore.totalRowHeightArr.length - 1];
 

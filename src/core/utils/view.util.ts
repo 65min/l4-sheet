@@ -22,7 +22,7 @@ export class ViewUtil {
     areaStore.colHeaderArea = control.colHeader.draw();
     areaStore.rowHeaderArea = control.rowHeader.draw();
 
-    areaStore.rowHeaderArea = control.rowHeader.draw();
+    // areaStore.rowHeaderArea = control.rowHeader.draw();
 
     if (control.hScroll) {
       const [hScrollBarArea, hLeftBtnArea, hRightBtnArea, hScrollArea] = control.hScroll.draw();

@@ -18,7 +18,7 @@ const selectArea: SelectAreaDrawer = null;
 const hScroll: HScrollDraw = null;
 const vScroll: VScrollDraw = null;
 
-export default {
+const controlStore = {
   tableHeader,
   rowHeader,
   colHeader,
@@ -29,3 +29,5 @@ export default {
   hScroll,
   vScroll
 }
+window.controlStore = controlStore;
+export default controlStore;

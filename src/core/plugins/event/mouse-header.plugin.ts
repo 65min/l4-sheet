@@ -254,7 +254,8 @@ export default class MouseHeaderPlugin extends BasePlugin {
     this.$target.addEventListener('mouseleave', this.handleMouseleaveEvent);
 
     this.$target.addEventListener('mousedown', this.handleMousedownEvent.bind(this));
-    this.$target.addEventListener('mousemove', this.handleMousemoveResizeEvent.bind(this));
+    // this.$target.addEventListener('mousemove', this.handleMousemoveResizeEvent.bind(this));
+    document.addEventListener('mousemove', this.handleMousemoveResizeEvent);
     this.$target.addEventListener('mouseup', this.handleMouseupEvent.bind(this));
   }
 }

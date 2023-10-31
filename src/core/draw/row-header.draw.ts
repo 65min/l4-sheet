@@ -66,7 +66,7 @@ export class RowHeaderDrawer extends BaseDrawer {
         continue;
       }
 
-      const inSelectArea = selectAreaRowIndexes.findIndex(item => item[0] <= i && item[1] >= i) >= 0;
+      const inSelectArea = selectAreaRowIndexes.findIndex(item => (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i)) >= 0;
       // if (this.hoverIndex === i) {
       //   CanvasUtil.drawRect(this.$ctx, 0, y1, config.rowHeaderWidth, height, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
       // } else {

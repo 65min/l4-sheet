@@ -3,12 +3,12 @@ import {PluginType} from '../plugin-type.enum.ts';
 import {AreaUtil} from '../../utils/area.util.ts';
 import {Point} from '../../model/point.ts';
 import operate from '../../store/operate.ts';
-import control from '../../store/control.store.ts';
 import state from '../../store/state.ts';
 import {CanvasUtil} from '../../utils/canvas.util.ts';
 import config from '../../config';
 import areaStore from '../../store/area.store.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
+import controlStore from '../../store/control.store.ts';
 
 
 export default class MouseScrollbarPlugin extends BasePlugin {
@@ -27,7 +27,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     if (isInHScrollBarArea) {
       operate.type = 'scroll-h';
       operate.scrollHState.beginPoint = mousedownPoint;
-      operate.scrollHState.initOffsetX = control.hScroll.offsetX;
+      operate.scrollHState.initOffsetX = controlStore.hScroll.offsetX;
       this.count = 0;
       return ;
     }
@@ -36,7 +36,7 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     if (isInVScrollBarArea) {
       operate.type = 'scroll-v';
       operate.scrollVState.beginPoint = mousedownPoint;
-      operate.scrollVState.initOffsetY = control.vScroll.offsetY;
+      operate.scrollVState.initOffsetY = controlStore.vScroll.offsetY;
       this.count = 0;
       return ;
     }
@@ -59,12 +59,15 @@ export default class MouseScrollbarPlugin extends BasePlugin {
         totalOffsetX = 0;
       }
 
-      control.hScroll.offsetX = totalOffsetX;
-      state.offsetX = totalOffsetX / state.hScrollRatio;
-      if (state.offsetX > state.contentWidth - 160) {
-        state.offsetX = state.contentWidth - 160;
+      controlStore.hScroll.offsetX = totalOffsetX;
+      let newOffsetX = totalOffsetX / state.hScrollRatio;
+      if (newOffsetX > state.contentWidth - 160) {
+        newOffsetX = state.contentWidth - 160;
       }
-      control.hScroll.offsetX = state.offsetX * state.hScrollRatio;
+      state.deltaX = newOffsetX - state.offsetX;
+      state.deltaY = 0;
+      state.offsetX = newOffsetX;
+      controlStore.hScroll.offsetX = state.offsetX * state.hScrollRatio;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(state.offsetX);
 
       this.refreshView();
@@ -77,31 +80,33 @@ export default class MouseScrollbarPlugin extends BasePlugin {
         totalOffsetY = 0;
       }
 
-      control.vScroll.offsetY = totalOffsetY;
-      state.offsetY = totalOffsetY / state.vScrollRatio;
-      if (state.offsetY > state.contentHeight - 100) {
-        state.offsetY = state.contentHeight - 100;
-        if (state.offsetY < 0) {
-          debugger;
-        }
+      controlStore.vScroll.offsetY = totalOffsetY;
+
+      let newOffsetY = totalOffsetY / state.vScrollRatio;
+      if (newOffsetY > state.contentHeight - 100) {
+        newOffsetY = state.contentHeight - 100;
       }
-      control.vScroll.offsetY = state.offsetY * state.vScrollRatio;
+      state.deltaX = 0;
+      state.deltaY = newOffsetY - state.offsetY;
+      state.offsetY = newOffsetY;
+
+      controlStore.vScroll.offsetY = state.offsetY * state.vScrollRatio;
       state.emptyHeight = CanvasUtil.computeEmptyHeight(state.offsetY);
 
       this.refreshView();
     } else {
       const point = new Point(offsetX, offsetY);
-      if (control.hScroll) {
-        control.hScroll.hover = AreaUtil.inArea(point, areaStore.hScrollBarArea);
-        control.hScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollLArea);
-        control.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollRArea);
-        control.hScroll.draw();
+      if (controlStore.hScroll) {
+        controlStore.hScroll.hover = AreaUtil.inArea(point, areaStore.hScrollBarArea);
+        controlStore.hScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollLArea);
+        controlStore.hScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.hScrollRArea);
+        controlStore.hScroll.draw();
       }
-      if (control.vScroll) {
-        control.vScroll.hover = AreaUtil.inArea(point, areaStore.vScrollBarArea);
-        control.vScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollLArea);
-        control.vScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollRArea);
-        control.vScroll.draw();
+      if (controlStore.vScroll) {
+        controlStore.vScroll.hover = AreaUtil.inArea(point, areaStore.vScrollBarArea);
+        controlStore.vScroll.leftButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollLArea);
+        controlStore.vScroll.rightButtonStatus.hover = AreaUtil.inArea(point, areaStore.vScrollRArea);
+        controlStore.vScroll.draw();
       }
     }
 
@@ -123,11 +128,11 @@ export default class MouseScrollbarPlugin extends BasePlugin {
   }
 
   refreshView() {
-    ViewUtil.refreshView(ViewUtil.drawSelectCell);
+    ViewUtil.refreshView(() => controlStore.selectArea.draw());
   }
 
   handleScroll(event: WheelEvent) {
-    if (!control.vScroll) {
+    if (!controlStore.vScroll) {
       return ;
     }
 
@@ -136,14 +141,17 @@ export default class MouseScrollbarPlugin extends BasePlugin {
     offsetY = offsetY + deltaY;
     if (offsetY < 0) {
       offsetY = 0;
-    } else if (offsetY > state.rowNum * config.rowHeight - 100) {
-      offsetY = state.rowNum * config.rowHeight - 100
+    } else if (offsetY > state.contentHeight - 100) {
+      offsetY = state.contentHeight - 100
     }
 
     state.emptyHeight = CanvasUtil.computeEmptyHeight(offsetY);
 
-    state.offsetY = offsetY
-    control.vScroll.offsetY = offsetY * state.vScrollRatio;
+    state.deltaX = 0;
+    state.deltaY = offsetY - state.offsetY;
+    state.offsetY = offsetY;
+
+    controlStore.vScroll.offsetY = offsetY * state.vScrollRatio;
     this.refreshView();
   }
 
@@ -159,7 +167,11 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetX < 0) {
         offsetX = 0;
       }
-      control.hScroll.offsetX = offsetX * state.hScrollRatio;
+      controlStore.hScroll.offsetX = offsetX * state.hScrollRatio;
+
+      let newOffsetX = offsetX;
+      state.deltaX = newOffsetX - state.offsetX;
+      state.deltaY = 0;
       state.offsetX = offsetX;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
 
@@ -170,7 +182,11 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetX > state.contentWidth - 160) {
         offsetX = state.contentWidth - 160
       }
-      control.hScroll.offsetX = offsetX * state.hScrollRatio;
+      controlStore.hScroll.offsetX = offsetX * state.hScrollRatio;
+
+      let newOffsetX = offsetX;
+      state.deltaX = newOffsetX - state.offsetX;
+      state.deltaY = 0;
       state.offsetX = offsetX;
       state.emptyWidth = CanvasUtil.computeEmptyWidth(offsetX);
 
@@ -182,7 +198,11 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetY < 0) {
         offsetY = 0;
       }
-      control.vScroll.offsetY = offsetY * state.vScrollRatio;
+      controlStore.vScroll.offsetY = offsetY * state.vScrollRatio;
+
+      let newOffsetY = offsetY;
+      state.deltaX = 0;
+      state.deltaY = newOffsetY - state.offsetY;
       state.offsetY = offsetY;
       state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
 
@@ -193,7 +213,11 @@ export default class MouseScrollbarPlugin extends BasePlugin {
       if (offsetY > state.contentHeight - 100) {
         offsetY = state.contentHeight - 100
       }
-      control.vScroll.offsetY = offsetY * state.vScrollRatio;
+      controlStore.vScroll.offsetY = offsetY * state.vScrollRatio;
+
+      let newOffsetY = offsetY;
+      state.deltaX = 0;
+      state.deltaY = newOffsetY - state.offsetY;
       state.offsetY = offsetY;
       state.emptyWidth = CanvasUtil.computeEmptyHeight(offsetY);
 

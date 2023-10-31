@@ -7,7 +7,7 @@ import BasePlugin from './base-plugin.ts';
     const template = document.createElement('template');
     template.innerHTML = `
       <div>
-        L4-Sheet 
+<!--        L4-Sheet -->
       </div>
     `;
 

@@ -32,9 +32,10 @@ export default class MouseContentPlugin extends BasePlugin {
 
   private isEventInCell(event: { offsetX: number, offsetY: number }): CellIndex | null {
     const point = new Point(event.offsetX, event.offsetY);
-    for (let i = 0; i < areaStore.cellContentArea.length; i++) {
+    const {beginRow, beginCol, endRow, endCol} = controlStore.cellContent;
+    for (let i = beginRow; i <= endRow; i++) {
       const rowArea = areaStore.cellContentArea[i];
-      for (let j = 0; j < rowArea.length; j++) {
+      for (let j = beginCol; j <= endCol; j++) {
         const area = rowArea[j];
         if (area && AreaUtil.inArea(point, area)) {
           if (event.offsetX > config.rowHeaderWidth && event.offsetX < config.rowHeaderWidth + state.viewWidth &&
