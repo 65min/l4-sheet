@@ -26,6 +26,16 @@ export class CellAreaUtil {
   }
 
   public static normalizeCellarea(cellArea: CellArea): CellArea {
+    if (cellArea.length === 6) {
+      return [
+        Math.min(cellArea[0], cellArea[2]),
+        Math.min(cellArea[1], cellArea[3]),
+        Math.max(cellArea[0], cellArea[2]),
+        Math.max(cellArea[1], cellArea[3]),
+        cellArea[4],
+        cellArea[5],
+      ];
+    }
     return [
       Math.min(cellArea[0], cellArea[2]),
       Math.min(cellArea[1], cellArea[3]),
@@ -129,5 +139,50 @@ export class CellAreaUtil {
       return null;
     }
     return result;
+  }
+
+  /**
+   * 取两个区域的最大范围集合，如[0, 0, 0, 0]和[2, 2, 2, 2]的结果是[0, 0, 2, 2]
+   * @param a
+   * @param b
+   */
+  public static computeCellAreaUnion(a: CellArea, b: CellArea): CellArea {
+    let beginCellIndex: [number, number] = [a[0], a[1]];
+    if (a.length === 6) {
+      beginCellIndex = [a[4], a[5]];
+    }
+
+    a = CellAreaUtil.normalizeCellarea(a);
+    b = CellAreaUtil.normalizeCellarea(b);
+
+    if (a.length === 6) {
+      return [
+        Math.min(a[0], b[0]),
+        Math.min(a[1], b[1]),
+        Math.max(a[2], b[2]),
+        Math.max(a[3], b[3]),
+        ...beginCellIndex
+      ];
+    }
+
+    return [
+      Math.min(a[0], b[0]),
+      Math.min(a[1], b[1]),
+      Math.max(a[2], b[2]),
+      Math.max(a[3], b[3])
+    ];
+  }
+
+  /**
+   * 选择区域是否为空
+   *
+   * @param selectAreas
+   */
+  public static isEmpty(selectAreas: CellArea[]): boolean {
+    return selectAreas.length > 0;
+  }
+
+  public static isSingleCell(selectAreas: CellArea[]): boolean {
+    return selectAreas.length === 1 && selectAreas[0][0] === selectAreas[0][2] && selectAreas[0][1] === selectAreas[0][3];
   }
 }

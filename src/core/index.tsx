@@ -8,7 +8,6 @@ import state from './store/state.ts';
 import DragPlugin from './plugins/event/drag.plugin.ts';
 import MouseScrollbarPlugin from './plugins/event/mouse-scrollbar.plugin.ts';
 import store from './store';
-// import KeyboardScrollbarPlugin from './plugins/event/keyboard-scrollbar.plugin.ts';
 import MouseHeaderPlugin from './plugins/event/mouse-header.plugin.ts';
 import MouseContentPlugin from './plugins/event/mouse-content.plugin.ts';
 
@@ -25,6 +24,9 @@ export default class Wrap extends BasePlugin {
   }
 
   init(): void {
+
+
+
     this.$target!.innerHTML = `
       <div class="l4__toolbar-wrap"></div>
       <div class="l4__content-wrap"></div>

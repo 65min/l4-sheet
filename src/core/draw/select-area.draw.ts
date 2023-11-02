@@ -9,6 +9,7 @@ import {AreaUtil} from '../utils/area.util.ts';
 import {CellAreaUtil} from '../utils/cell-area.util.ts';
 import {CellArea, CellIndex} from '../def/cell-area.ts';
 import controlStore from '../store/control.store.ts';
+import {ViewUtil} from '../utils/view.util.ts';
 
 export class SelectAreaDrawer extends BaseDrawer {
 
@@ -33,8 +34,11 @@ export class SelectAreaDrawer extends BaseDrawer {
 
     const normalizeCellArea = CellAreaUtil.normalizeCellarea(cellArea);
 
-    const selectCellAreaBeginCell: CellIndex = [cellArea[0], cellArea[1]];
-    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
+    let beginCell: CellIndex = [cellArea[0], cellArea[1]];
+    if (cellArea.length === 6) {
+      beginCell = [cellArea[4], cellArea[5]];
+    }
+    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...beginCell, ...beginCell]);
 
     splitedCellAreas.forEach(item => {
       const itemArea = this.computeArea(item);
@@ -101,9 +105,15 @@ export class SelectAreaDrawer extends BaseDrawer {
     }
     // const [ri1, ci1, ri2, ci2] = selectCell;
     const ri1 = Math.min(cellArea[0], cellArea[2]);
-    const ri2 = Math.max(cellArea[0], cellArea[2]);
     const ci1 = Math.min(cellArea[1], cellArea[3]);
-    const ci2 = Math.max(cellArea[1], cellArea[3]);
+    let ri2 = Math.max(cellArea[0], cellArea[2]);
+    let ci2 = Math.max(cellArea[1], cellArea[3]);
+
+    // const targetMergeCell = state.mergeCells.find((item: MergeCell) => item[0] === ri1 && item[1] === ci1);
+    // if (targetMergeCell) {
+    //   ri2 = ri1 + targetMergeCell[2] + 1;
+    //   ci2 = ci1 + targetMergeCell[3] + 1;
+    // }
 
     const areas = [];
     for (let i = ri1; i <= ri2; i++) {
@@ -124,11 +134,11 @@ export class SelectAreaDrawer extends BaseDrawer {
     selectCellAreas.forEach((selectCellArea: CellArea, index: number) => {
       const totalArea = this.computeArea(selectCellArea);
       if (index === selectCellAreas.length - 1) {
-        const selectCellAreaBeginCell: CellIndex = [selectCellArea[0], selectCellArea[1]];
-        const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(selectCellArea, [...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
+        const beginCell: CellIndex = [selectCellArea[0], selectCellArea[1]];
+        const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(selectCellArea, [...beginCell, ...beginCell, ...beginCell]);
 
         {
-          const {x1, x2, y1, y2} = this.computeArea([...selectCellAreaBeginCell, ...selectCellAreaBeginCell]);
+          const {x1, x2, y1, y2} = this.computeArea([...beginCell, ...beginCell, ...beginCell]);
           CanvasUtil.drawLine(
             store.$ctx,
             [
@@ -191,5 +201,12 @@ export class SelectAreaDrawer extends BaseDrawer {
       y2 - y1,
       {fillStyle: '#ffffff80', lineWidth: 2, strokeStyle: '#bdbdbd'}
     );
+  }
+
+  public setDefault(): void {
+    selectArea.selectedCellAreas = [[0, 0, 0, 0, 0, 0]];
+    selectArea.selectedCell = [0, 0];
+
+    ViewUtil.refreshView(ViewUtil.drawSelectCell);
   }
 }

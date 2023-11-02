@@ -4,7 +4,7 @@ import {PluginType} from '../plugin-type.enum.ts';
 import {AreaUtil} from '../../utils/area.util.ts';
 import {Point} from '../../model/point.ts';
 import config from '../../config';
-import state from '../../store/state.ts';
+import state, {MergeCell} from '../../store/state.ts';
 import selectArea from '../../store/select-area.ts';
 import operate from '../../store/operate.ts';
 import areaStore from '../../store/area.store.ts';
@@ -13,6 +13,7 @@ import {CellAreaUtil} from '../../utils/cell-area.util.ts';
 import {CellArea, CellIndex} from '../../def/cell-area.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
 import {CellIndexUtil} from '../../utils/cell-index.util.ts';
+import cacheStore from '../../store/cache.store.ts';
 
 export default class MouseContentPlugin extends BasePlugin {
 
@@ -75,9 +76,14 @@ export default class MouseContentPlugin extends BasePlugin {
       // selectedCellAreas.push([...beginCell, ...endCell]);
       if (selectArea.selectedCellAreas.length === 0) {
         // selectArea.selectedCellAreas.push(CellAreaUtil.computeMinCellArea(beginCell, endCell));
-        selectArea.selectedCellAreas.push([...beginCell, ...endCell]);
+        selectArea.selectedCellAreas.push([...beginCell, ...endCell, ...beginCell]);
       } else {
-        selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = [...beginCell, ...endCell];
+        // selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = [...beginCell, ...endCell, ...beginCell];
+        const endCellArea: CellArea = [...beginCell, ...endCell, ...beginCell];
+        const mixMergeCellArea = this.mixMergeCell(endCellArea);
+        console.log(mixMergeCellArea);
+        selectArea.selectedCellAreas[selectArea.selectedCellAreas.length - 1] = mixMergeCellArea;
+
       }
 
       ViewUtil.refreshView();
@@ -91,10 +97,9 @@ export default class MouseContentPlugin extends BasePlugin {
 
       // 开始单元格是否在选择区域内
       if (operate.selectCellState.deselect) {
-        selectArea.deSelectedCellArea = [...beginCell, ...endCell];
+        selectArea.deSelectedCellArea = [...beginCell, ...endCell, ...beginCell];
       } else {
-        console.log([...beginCell, ...endCell])
-        selectArea.selectedCellAreas.splice(selectArea.selectedCellAreas.length - 1, 1, [...beginCell, ...endCell])
+        selectArea.selectedCellAreas.splice(selectArea.selectedCellAreas.length - 1, 1, [...beginCell, ...endCell, ...beginCell])
       }
 
       ViewUtil.refreshView();
@@ -144,7 +149,7 @@ export default class MouseContentPlugin extends BasePlugin {
       } else {
         // 是否反向选择
         operate.selectCellState.deselect = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, cellIndex)) >= 0;
-        const cellArea: CellArea = [...cellIndex, ...cellIndex];
+        const cellArea: CellArea = [...cellIndex, ...cellIndex, ...cellIndex];
         if (operate.selectCellState.deselect) {
           selectArea.deSelectedCellArea = cellArea;
         } else {
@@ -171,6 +176,35 @@ export default class MouseContentPlugin extends BasePlugin {
       operate.selectCellState.beginCell = cellIndex;
       operate.selectCellState.endCell = cellIndex;
     }
+  }
+
+  /**
+   * 范围混合合并单元格
+   *
+   * @param cellArea
+   * @private
+   */
+  private mixMergeCell(cellArea: CellArea): CellArea {
+    const [ri1, ci1, ri2, ci2] = CellAreaUtil.normalizeCellarea(cellArea);
+    const mergeCells: MergeCell[] = [];
+    for (let i = ri1; i <= ri2; i++) {
+      for (let j = ci1; j <= ci2; j++) {
+        if (cacheStore.mergeCellIndexes[i] && cacheStore.mergeCellIndexes[i][j]) {
+          const targetMergeCellIndex = cacheStore.mergeCellIndexes[i][j];
+          const targetMergeCell = state.mergeCells.find((item) => targetMergeCellIndex[0] === item[0] && targetMergeCellIndex[1] === item[1])
+          const existMergeCell = mergeCells.find(item => i === item[0] && j === item[1]);
+          if (!existMergeCell) {
+            mergeCells.push(targetMergeCell);
+          }
+          break;
+        }
+      }
+    }
+
+    const mergeCellAreas = mergeCells.map(item => ([item[0], item[1], item[0] + item[2] -1, item[1] + item[3] -1] as CellArea));
+    console.log(mergeCellAreas);
+    const totalCellArea = mergeCellAreas.reduce((prev, curr) => CellAreaUtil.computeCellAreaUnion(prev, curr), cellArea);
+    return totalCellArea;
   }
 
   private handleMouseupEvent(_event: MouseEvent) {

@@ -18,7 +18,22 @@ const selectArea: SelectAreaDrawer = null;
 const hScroll: HScrollDraw = null;
 const vScroll: VScrollDraw = null;
 
-const controlStore = {
+interface ControlStore {
+  tableHeader: TableHeaderDrawer;
+  rowHeader: RowHeaderDrawer;
+  colHeader: ColHeaderDrawer;
+  cellContent: CellContentDrawer;
+  background: BackgroundDrawer;
+  selectArea: SelectAreaDrawer;
+
+
+  hScroll: HScrollDraw;
+  vScroll: VScrollDraw;
+
+  toolbarShadow: ShadowRoot;
+}
+
+const controlStore: ControlStore = {
   tableHeader,
   rowHeader,
   colHeader,
@@ -27,7 +42,9 @@ const controlStore = {
   selectArea,
 
   hScroll,
-  vScroll
+  vScroll,
+
+  toolbarShadow: null
 }
 window.controlStore = controlStore;
 export default controlStore;

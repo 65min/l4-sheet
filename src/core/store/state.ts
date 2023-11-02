@@ -1,6 +1,34 @@
 
 
-const state = {
+export type MergeCell = [number, number, number, number]; // 分别为rowindex、colindex、rowspan、colspan
+
+interface State {
+  colNum: number;
+  rowNum: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  contentWidth: number;
+  contentHeight: number;
+  viewWidth: number;
+  viewHeight: number;
+  vScrollWidth: number;
+  hScrollHeight: number;
+  vScrollRatio: number;
+  hScrollRatio: number;
+  offsetX: number;
+  offsetY: number;
+  deltaX: number;
+  deltaY: number;
+  emptyHeight: number;
+  emptyWidth: number;
+
+  cols: {[key: number]: {w: number}};
+  rows: {[key: number]: {h: number}};
+
+  mergeCells: MergeCell[];
+}
+
+const state: State = {
   colNum: 125,
   rowNum: 7890,
   canvasWidth: 0, // canvas组件宽度
@@ -20,12 +48,14 @@ const state = {
   emptyHeight: 0,
   emptyWidth: 0,
 
-  cols: {1: {w: 100}, 3: {w: 160}},
-  rows: {4: {h: 90}, 5: {h: 130}},
-  // cols: {},
-  // rows: {},
+  // cols: {1: {w: 100}, 3: {w: 160}, 6: {w: 150}},
+  // rows: {4: {h: 90}, 5: {h: 130}},
+  cols: {},
+  rows: {},
+  
+  mergeCells: []
 }
 
-// window.state = state;
+window.state = state;
 
 export default state;

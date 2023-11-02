@@ -1,4 +1,4 @@
-import {CellArea, CellIndex} from '../def/cell-area.ts';
+import {CellArea, CellIndex, CellRange} from '../def/cell-area.ts';
 
 class SelectArea {
   // rowIndex: number;

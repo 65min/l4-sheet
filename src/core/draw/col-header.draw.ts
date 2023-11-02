@@ -69,7 +69,9 @@ export class ColHeaderDrawer extends BaseDrawer {
         continue;
       }
 
-      const inSelectArea = selectAreaColIndexes.findIndex(item => (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i)) >= 0;
+      const inSelectArea = selectAreaColIndexes.findIndex(item => {
+        return (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i) || state.mergeCells.findIndex(m => m[1] <= i && m[1] + m[3] - 1 >= i) >= 0
+      }) >= 0;
       // if (this.hoverIndex === i) {
       //   CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
       // } else {

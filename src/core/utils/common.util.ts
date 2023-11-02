@@ -66,6 +66,13 @@ export class CommonUtil {
     return objClone;
   }
 
+  public static randomAlphabet(length: number = 6): string {
+    const strings = 'abcdefghijklmnopqrstuvwxyz';
+    const stringArr = strings.split('');
+
+    return new Array(length).fill(null).map(() => stringArr[(Math.random() * 27 | 0) % 26]).join('');
+  }
+
 
 }
 

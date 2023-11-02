@@ -1,10 +1,12 @@
 import {BaseDrawer} from './base.draw.ts';
 import {Area} from '../model/area.ts';
-import state from '../store/state.ts';
+import state, {MergeCell} from '../store/state.ts';
 import config from '../config';
 import {CanvasUtil} from '../utils/canvas.util.ts';
 import areaStore from '../store/area.store.ts';
 import cacheStore from '../store/cache.store.ts';
+import {CellIndex} from '../def/cell-area.ts';
+import {CellIndexUtil} from '../utils/cell-index.util.ts';
 
 export class CellContentDrawer extends BaseDrawer {
 
@@ -298,11 +300,22 @@ export class CellContentDrawer extends BaseDrawer {
   draw(): Area[][] {
     this.areas = areaStore.cellContentArea;
 
+    const mergeParentCellIndexes: CellIndex[] = [];
     for (let i = this.beginRow; i <= this.endRow; i++) {
       for (let j = this.beginCol; j <= this.endCol; j++) {
-        this.areas[i][j] = null;
+        this.areas[i][j] = null; // 清空area
+        if (cacheStore.mergeCellIndexes[i] && cacheStore.mergeCellIndexes[i][j]) {
+          const mergeParentCellIndex = cacheStore.mergeCellIndexes[i][j];
+          if (mergeParentCellIndex) {
+            const exist = mergeParentCellIndexes.findIndex(item => CellIndexUtil.equals(item, mergeParentCellIndex)) >= 0;
+            if (!exist) {
+              mergeParentCellIndexes.push(mergeParentCellIndex);
+            }
+          }
+        }
       }
     }
+
     // console.time('computeDeltaXY');
     const [beginRow, endRow, beginCol, endCol] = this.computeDeltaXY(state.offsetX, state.offsetY, state.deltaX, state.deltaY);
     // console.timeEnd('computeDeltaXY');
@@ -311,29 +324,19 @@ export class CellContentDrawer extends BaseDrawer {
     // console.timeEnd('initarray');
     //
     // console.time('draw cell');
-    // this.beginRow = beginRow;
     this.beginRow = beginRow;
     this.endRow = endRow;
     this.beginCol = beginCol;
     this.endCol = endCol;
-    // if (beginRow != undefined) {
-    //   this.beginRow = beginRow;
-    // }
-    // if (endRow != undefined) {
-    //   this.endRow = endRow;
-    // }
-    // // this.beginCol = beginCol;
-    // if (beginCol != undefined) {
-    //   this.beginCol = beginCol;
-    // }
-    // if (endCol != undefined) {
-    //   this.endCol = endCol;
-    // }
     for (let i = this.beginRow; i <= this.endRow; i ++) {
 
       let cellHeight = cacheStore.rowHeightArr[i];
 
       for (let j = this.beginCol; j <= this.endCol; j ++) {
+
+        if (cacheStore.mergeCellIndexes[i] && cacheStore.mergeCellIndexes[i][j]) {
+          continue;
+        }
 
         let offsetX = config.rowHeaderWidth;
         if (j > 0) {
@@ -352,6 +355,37 @@ export class CellContentDrawer extends BaseDrawer {
         this.areas[i][j] = new Area(x, y, x + cellWidth, y + cellHeight);
       }
     }
+
+    for (let i = 0; i < mergeParentCellIndexes.length; i++) {
+      const [pRi, pCi] = mergeParentCellIndexes[i];
+
+      let pOffsetX = config.rowHeaderWidth;
+      if (pCi) {
+        pOffsetX = pOffsetX + cacheStore.totalColWidthArr[pCi - 1];
+      }
+      let pOffsetY = config.colHeaderHeight;
+      if (pRi) {
+        pOffsetY = pOffsetY + cacheStore.totalRowHeightArr[pRi - 1];
+      }
+
+      let x = Math.floor(pOffsetX - state.offsetX);
+      let y = Math.floor(pOffsetY - state.offsetY);
+
+      let cellWidth = 0;
+      let cellHeight = 0;
+      const targetMergeCell = state.mergeCells.find((item: MergeCell) => item[0] === pRi && item[1] === pCi);
+      const [, , rs, cs]  = targetMergeCell;
+      for (let m = 0; m < rs; m++) {
+        cellHeight = cellHeight + cacheStore.rowHeightArr[pRi + m];
+      }
+      for (let n = 0; n < cs; n++) {
+        cellWidth = cellWidth + cacheStore.colWidthArr[pCi + n];
+      }
+
+      CanvasUtil.drawRect(this.$ctx, x, y, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+      this.areas[pRi][pCi] = new Area(x, y, x + cellWidth, y + cellHeight);
+    }
+
     // console.timeEnd('draw cell');
 
     state.deltaX = 0;
@@ -386,6 +420,21 @@ export class CellContentDrawer extends BaseDrawer {
       return ;
     }
 
-    CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cacheStore.colWidthArr[ci], cacheStore.rowHeightArr[ri], {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+    let cellWidth = 0;
+    let cellHeight = 0;
+    const targetMergeCell = state.mergeCells.find((item: MergeCell) => item[0] === ri && item[1] === ci);
+    if (targetMergeCell) {
+      const [, , rs, cs]  = targetMergeCell;
+      for (let m = 0; m < rs; m++) {
+        cellHeight = cellHeight + cacheStore.rowHeightArr[ri + m];
+      }
+      for (let n = 0; n < cs; n++) {
+        cellWidth = cellWidth + cacheStore.colWidthArr[ci + n];
+      }
+
+      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+    } else {
+      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cacheStore.colWidthArr[ci], cacheStore.rowHeightArr[ri], {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+    }
   }
 }
