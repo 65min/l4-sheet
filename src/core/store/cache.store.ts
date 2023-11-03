@@ -1,6 +1,7 @@
 import {CommonUtil} from '../utils/common.util.ts';
+import {CellIndex} from '../def/cell-area.ts';
 
-export type MergeCellIndex = {[key: number]: {[key: number]: [number, number]}};
+export type MergeCellIndex = {[key: number]: {[key: number]: CellIndex}}; // 如单元格[0, 0]跨2行3列，则：｛1: {1: [0, 0]}｝
 
 interface CacheStore {
   colWidthArr: number[];
@@ -10,7 +11,8 @@ interface CacheStore {
   raf: number;
   ra: string;
 
-  mergeCellIndexes: MergeCellIndex
+  mergeCellIndexes: MergeCellIndex;
+
 }
 
 const cacheStore: CacheStore = {

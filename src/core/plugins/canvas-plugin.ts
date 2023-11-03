@@ -13,9 +13,8 @@ import {VScrollDraw} from '../draw/v-scroll.draw.ts';
 import config from '../config';
 import {SelectAreaDrawer} from '../draw/select-area.draw.ts';
 import areaStore from '../store/area.store.ts';
-import cacheStore from '../store/cache.store.ts';
 import {CacheUtil} from '../utils/cache.util.ts';
-import {Area} from '../model/area.ts';
+
 //
 // (function () {
 //   if (window.customElements.get('l4-canvas') === undefined) {

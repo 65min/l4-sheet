@@ -38,21 +38,17 @@ export class SelectAreaDrawer extends BaseDrawer {
     if (cellArea.length === 6) {
       beginCell = [cellArea[4], cellArea[5]];
     }
-    const splitedCellAreas = CellAreaUtil.splitWithoutTargetCell(cellArea, [...beginCell, ...beginCell]);
-
-    splitedCellAreas.forEach(item => {
-      const itemArea = this.computeArea(item);
-      const {x1, x2, y1, y2} = itemArea;
-      CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
-    })
-
+    // 弃用分割区域进行绘制灰色蒙版的方案，直接绘制整个灰色区域，再重新绘制初始单元格
     const {x1, x2, y1, y2} = totalArea;
+    CanvasUtil.drawRect(store.$ctx, x1, y1, x2 - x1, y2 - y1, {fillStyle: '#cccccc77', lineWidth: 0});
+
+    controlStore.cellContent.drawCell(beginCell[0], beginCell[1]);
 
     if (normalizeCellArea[0] >= beginRow && normalizeCellArea[0] <= endRow) {
       CanvasUtil.drawLine(
         store.$ctx,
         [
-          Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // top
+          Point.build(x1 + .5 - 1.5, y1 + .5), Point.build(x2 + .5 + 1.5, y1 + .5), // top
         ],
         {strokeStyle: '#26a69a', lineWidth: 3}
       );
@@ -61,7 +57,7 @@ export class SelectAreaDrawer extends BaseDrawer {
       CanvasUtil.drawLine(
         store.$ctx,
         [
-          Point.build(x1 + .5, y1 + .5), Point.build(x1 + .5, y2 + .5), // left
+          Point.build(x1 + .5, y1 + .5 - 1.5), Point.build(x1 + .5, y2 + .5 + 1.5), // left
         ],
         {strokeStyle: '#26a69a', lineWidth: 3}
       );
@@ -70,7 +66,7 @@ export class SelectAreaDrawer extends BaseDrawer {
       CanvasUtil.drawLine(
         store.$ctx,
         [
-          Point.build(x2 + .5, y2 + .5), Point.build(x1 + .5, y2 + .5), // bottom
+          Point.build(x2 + .5 + 1.5, y2 + .5), Point.build(x1 + .5 - 1.5, y2 + .5), // bottom
         ],
         {strokeStyle: '#26a69a', lineWidth: 3}
       );
@@ -79,21 +75,11 @@ export class SelectAreaDrawer extends BaseDrawer {
       CanvasUtil.drawLine(
         store.$ctx,
         [
-          Point.build(x2 + .5, y1 + .5), Point.build(x2 + .5, y2 + .5), // right
+          Point.build(x2 + .5, y1 + .5 - 1.5), Point.build(x2 + .5, y2 + .5 + 1.5), // right
         ],
         {strokeStyle: '#26a69a', lineWidth: 3}
       );
     }
-    // CanvasUtil.drawLine(
-    //   store.$ctx,
-    //   [
-    //     Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // top
-    //     Point.build(x2 + .5, y1 + .5), Point.build(x2 + .5, y2 + .5), // right
-    //     Point.build(x2 + .5, y2 + .5), Point.build(x1 + .5, y2 + .5), // bottom
-    //     Point.build(x1 + .5, y1 + .5), Point.build(x2 + .5, y1 + .5), // left
-    //   ],
-    //   {strokeStyle: '#26a69a', lineWidth: 3}
-    // );
 
     return totalArea;
   }
@@ -118,9 +104,15 @@ export class SelectAreaDrawer extends BaseDrawer {
     const areas = [];
     for (let i = ri1; i <= ri2; i++) {
       for (let j = ci1; j <= ci2; j++) {
-        const cellArea = areaStore.cellContentArea[i][j];
+        // TODO 按照cellcontent获取区域坐标会有问题，因为被合并单元格区域坐标为空
+        let cellArea = areaStore.cellContentArea[i][j];
         if (cellArea) {
           areas.push(cellArea);
+        }/***/ else {
+          cellArea = areaStore.cellContentMergeArea[i] && areaStore.cellContentMergeArea[i][j];
+          if (cellArea) {
+            areas.push(cellArea);
+          }
         }
       }
     }

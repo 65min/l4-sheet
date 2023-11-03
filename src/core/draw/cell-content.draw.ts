@@ -299,6 +299,7 @@ export class CellContentDrawer extends BaseDrawer {
 
   draw(): Area[][] {
     this.areas = areaStore.cellContentArea;
+    areaStore.cellContentMergeArea = {};
 
     const mergeParentCellIndexes: CellIndex[] = [];
     for (let i = this.beginRow; i <= this.endRow; i++) {
@@ -334,10 +335,6 @@ export class CellContentDrawer extends BaseDrawer {
 
       for (let j = this.beginCol; j <= this.endCol; j ++) {
 
-        if (cacheStore.mergeCellIndexes[i] && cacheStore.mergeCellIndexes[i][j]) {
-          continue;
-        }
-
         let offsetX = config.rowHeaderWidth;
         if (j > 0) {
           offsetX = cacheStore.totalColWidthArr[j - 1] + config.rowHeaderWidth;
@@ -351,8 +348,16 @@ export class CellContentDrawer extends BaseDrawer {
         let x = Math.floor(offsetX - state.offsetX);
         let y = Math.floor(offsetY - state.offsetY);
 
-        CanvasUtil.drawRect(this.$ctx, x, y, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+        if (cacheStore.mergeCellIndexes[i] && cacheStore.mergeCellIndexes[i][j]) {
+          if (areaStore.cellContentMergeArea[i] === undefined) {
+            areaStore.cellContentMergeArea[i] = {}
+          }
+          areaStore.cellContentMergeArea[i][j] = new Area(x, y, x + cellWidth, y + cellHeight);
+          continue;
+        }
+
         this.areas[i][j] = new Area(x, y, x + cellWidth, y + cellHeight);
+        CanvasUtil.drawRect(this.$ctx, x, y, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
       }
     }
 

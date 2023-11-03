@@ -29,8 +29,8 @@ interface State {
 }
 
 const state: State = {
-  colNum: 125,
-  rowNum: 7890,
+  colNum: 25,
+  rowNum: 89,
   canvasWidth: 0, // canvas组件宽度
   canvasHeight: 0,
   contentWidth: 0, // 单元格宽度

@@ -19,6 +19,17 @@ export class CellAreaUtil {
     return r1 <= cell[0] && r2 >= cell[0] && c1 <= cell[1] && c2 >= cell[1];
   }
 
+  /**
+   * 包含
+   * @param parent
+   * @param child
+   */
+  public static contains(parent: CellArea, child: CellArea): boolean {
+    parent = CellAreaUtil.normalizeCellarea(parent);
+    child = CellAreaUtil.normalizeCellarea(child);
+    return parent[0] <= child[0] && parent[1] <= child[1] && parent[2] >= child[2] && parent[3] >= child[3];
+  }
+
   public static computeMinCellArea(cellArea1: CellIndex, cellArea2: CellIndex): CellArea {
     const [r1, c1] = cellArea1;
     const [r2, c2] = cellArea2;

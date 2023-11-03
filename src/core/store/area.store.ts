@@ -31,6 +31,7 @@ interface AreaStore {
   rowHeaderArea: Area[]
 
   cellContentArea: Area[][];
+  cellContentMergeArea: {[key: number]: {[key: number]: Area}};
   backgroundArea: Area;
 }
 
@@ -49,6 +50,7 @@ let areaStore: AreaStore = {
   rowHeaderArea,
 
   cellContentArea,
+  cellContentMergeArea: {},
   backgroundArea
 };
 
