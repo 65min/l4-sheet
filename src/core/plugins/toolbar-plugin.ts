@@ -4,7 +4,6 @@ import cacheStore from '../store/cache.store.ts';
 import controlStore from '../store/control.store.ts';
 import selectArea from '../store/select-area.ts';
 import {CellAreaUtil} from '../utils/cell-area.util.ts';
-import {MsgUtil} from '../utils/msg.util.ts';
 import state from '../store/state.ts';
 import {ViewUtil} from '../utils/view.util.ts';
 import {MergeCellUtil} from '../utils/merge-cell.util.ts';
@@ -91,7 +90,6 @@ export default class ToolbarPlugin extends BasePlugin {
     }
   }
 
-
   mergeCells() {
     // const is
     if (selectArea.selectedCellAreas.length === 0) {
@@ -103,17 +101,14 @@ export default class ToolbarPlugin extends BasePlugin {
       return ;
     }
 
-    if (selectArea.selectedCellAreas.length > 1) {
-      MsgUtil.toast('选择区域无效');
-      return ;
+    for (let i = 0; i < selectArea.selectedCellAreas.length; i++) {
+      const selectedCellArea = selectArea.selectedCellAreas[i];
+      const [ri1, ci1, ri2, ci2] = CellAreaUtil.normalizeCellarea(selectedCellArea);
+      selectArea.selectedCellAreas[i] = [ri1, ci1, ri1, ci1];
+      state.mergeCells.push([ri1, ci1, ri2 - ri1 + 1, ci2 - ci1 + 1]);
     }
 
-    const [ri1, ci1, ri2, ci2] = selectArea.selectedCellAreas[0];
-
-    state.mergeCells.push([ri1, ci1, ri2 - ri1 + 1, ci2 - ci1 + 1]);
-
     cacheStore.mergeCellIndexes = MergeCellUtil.computeMergeCellIndex(state.mergeCells);
-
     ViewUtil.refreshView(ViewUtil.drawSelectCell);
   }
 
