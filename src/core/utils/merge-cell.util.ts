@@ -1,5 +1,6 @@
 import {MergeCell} from '../store/state.ts';
 import {MergeCellIndex} from '../store/cache.store.ts';
+import {CellArea} from '../def/cell-area.ts';
 
 export class MergeCellUtil {
 
@@ -28,6 +29,10 @@ export class MergeCellUtil {
 
     return result;
 
+  }
+
+  public static mergeCells2CellAreas(mergeCells: MergeCell[]): CellArea[] {
+    return mergeCells.map((item: MergeCell) => ([item[0], item[1], item[0] + item[2] - 1, item[1] + item[3] - 1]));
   }
 
 }

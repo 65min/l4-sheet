@@ -22,8 +22,8 @@ interface State {
   emptyHeight: number;
   emptyWidth: number;
 
-  cols: {[key: number]: {w: number}};
-  rows: {[key: number]: {h: number}};
+  cols: {[key: number]: {w?: number}};
+  rows: {[key: number]: {h?: number}};
 
   mergeCells: MergeCell[];
 }

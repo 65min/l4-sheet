@@ -4,7 +4,7 @@ import cacheStore from '../store/cache.store.ts';
 import controlStore from '../store/control.store.ts';
 import selectArea from '../store/select-area.ts';
 import {CellAreaUtil} from '../utils/cell-area.util.ts';
-import state, {MergeCell} from '../store/state.ts';
+import state from '../store/state.ts';
 import {ViewUtil} from '../utils/view.util.ts';
 import {MergeCellUtil} from '../utils/merge-cell.util.ts';
 import {CellArea} from '../def/cell-area.ts';
@@ -189,7 +189,7 @@ export default class ToolbarPlugin extends BasePlugin {
       const selectedMergeCells = state.mergeCells.filter(item => CellAreaUtil.cellAreaContainsCell(selectedCellArea, [item[0], item[1]]));
       state.mergeCells = state.mergeCells.filter(item => selectedMergeCells.indexOf(item) < 0);
 
-      const selectedMergeCellAreas: CellArea[] = selectedMergeCells.map((item: MergeCell) => ([item[0], item[1], item[0] + item[2] - 1, item[1] + item[3] - 1]));
+      const selectedMergeCellAreas: CellArea[] = MergeCellUtil.mergeCells2CellAreas(selectedMergeCells);
 
       const totalSelectedCellArea = selectedMergeCellAreas.reduce((prev, curr) => CellAreaUtil.computeCellAreaUnion(prev, curr), selectedCellArea);
       selectArea.selectedCellAreas[i] = totalSelectedCellArea;

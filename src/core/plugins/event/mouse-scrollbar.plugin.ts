@@ -5,7 +5,6 @@ import {Point} from '../../model/point.ts';
 import operate from '../../store/operate.ts';
 import state from '../../store/state.ts';
 import {CanvasUtil} from '../../utils/canvas.util.ts';
-import config from '../../config';
 import areaStore from '../../store/area.store.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
 import controlStore from '../../store/control.store.ts';

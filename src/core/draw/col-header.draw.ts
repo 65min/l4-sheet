@@ -9,6 +9,8 @@ import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
 import {CellArea} from '../def/cell-area.ts';
 import cacheStore from '../store/cache.store.ts';
+import {CellAreaUtil} from '../utils/cell-area.util.ts';
+import {MergeCellUtil} from '../utils/merge-cell.util.ts';
 
 export class ColHeaderDrawer extends BaseDrawer {
 
@@ -38,10 +40,19 @@ export class ColHeaderDrawer extends BaseDrawer {
 
     this.areas = [];
 
-    const selectAreaColIndexes = []
-    selectArea.selectedCellAreas.forEach((sa: CellArea) => {
-      selectAreaColIndexes.push([sa[1], sa[3]]);
-    });
+    const selectAreaColIndexes: [number, number][] = [];
+    for (let i = 0; i < selectArea.selectedCellAreas.length; i++) {
+      let ca = selectArea.selectedCellAreas[i];
+
+      const containMergeCells = state.mergeCells.filter(item => CellAreaUtil.cellAreaContainsCell(ca, [item[0], item[1]]));
+      if (containMergeCells.length === 0) {
+        selectAreaColIndexes.push([ca[1], ca[3]]);
+      }
+
+      const contailMergeCellAreas: CellArea[] = MergeCellUtil.mergeCells2CellAreas(containMergeCells);
+      ca = contailMergeCellAreas.reduce((prev, curr) => CellAreaUtil.computeCellAreaUnion(prev, curr), ca);
+      selectAreaColIndexes.push([ca[1], ca[3]]);
+    }
 
     // 背景
     CanvasUtil.drawRect(this.$ctx, config.rowHeaderWidth, 0, 1e10, config.colHeaderHeight, {fillStyle: '#e9e9e9', strokeStyle: '#aeaeae'});
@@ -70,7 +81,7 @@ export class ColHeaderDrawer extends BaseDrawer {
       }
 
       const inSelectArea = selectAreaColIndexes.findIndex(item => {
-        return (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i) || state.mergeCells.findIndex(m => m[1] <= i && m[1] + m[3] - 1 >= i) >= 0
+        return (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i);
       }) >= 0;
       // if (this.hoverIndex === i) {
       //   CanvasUtil.drawRect(this.$ctx, x1, 0, width, config.colHeaderHeight, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})

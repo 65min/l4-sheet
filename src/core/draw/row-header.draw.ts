@@ -7,6 +7,8 @@ import selectArea from '../store/select-area.ts';
 import {Point} from '../model/point.ts';
 import {CellArea} from '../def/cell-area.ts';
 import cacheStore from '../store/cache.store.ts';
+import {CellAreaUtil} from '../utils/cell-area.util.ts';
+import {MergeCellUtil} from '../utils/merge-cell.util.ts';
 
 
 export class RowHeaderDrawer extends BaseDrawer {
@@ -35,10 +37,20 @@ export class RowHeaderDrawer extends BaseDrawer {
 
     this.areas = [];
 
-    const selectAreaRowIndexes = []
-    selectArea.selectedCellAreas.forEach((sa: CellArea) => {
-      selectAreaRowIndexes.push([sa[0], sa[2]]);
-    });
+    // const selectAreaRowIndexes = selectArea.selectedCellAreas.map((ca: CellArea) => ([ca[0], ca[2]]));
+    const selectAreaRowIndexes: [number, number][] = [];
+    for (let i = 0; i < selectArea.selectedCellAreas.length; i++) {
+      let ca = selectArea.selectedCellAreas[i];
+
+      const containMergeCells = state.mergeCells.filter(item => CellAreaUtil.cellAreaContainsCell(ca, [item[0], item[1]]));
+      if (containMergeCells.length === 0) {
+        selectAreaRowIndexes.push([ca[0], ca[2]]);
+      }
+
+      const contailMergeCellAreas: CellArea[] = MergeCellUtil.mergeCells2CellAreas(containMergeCells);
+      ca = contailMergeCellAreas.reduce((prev, curr) => CellAreaUtil.computeCellAreaUnion(prev, curr), ca);
+      selectAreaRowIndexes.push([ca[0], ca[2]]);
+    }
 
     // 背景
     CanvasUtil.drawRect(this.$ctx, 0, config.colHeaderHeight, config.rowHeaderWidth, 1e10, {fillStyle: '#dddddd', strokeStyle: '#aeaeae'});
@@ -67,7 +79,7 @@ export class RowHeaderDrawer extends BaseDrawer {
       }
 
       const inSelectArea = selectAreaRowIndexes.findIndex(item => {
-        return (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i) || state.mergeCells.findIndex(m => m[0] <= i && m[0] + m[2] - 1 >= i) >= 0
+        return (item[0] <= i && item[1] >= i) || (item[1] <= i && item[0] >= i);
       }) >= 0;
       // if (this.hoverIndex === i) {
       //   CanvasUtil.drawRect(this.$ctx, 0, y1, config.rowHeaderWidth, height, {strokeStyle: '#aeaeae', fillStyle: '#e4efee'})
