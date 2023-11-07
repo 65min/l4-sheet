@@ -14,6 +14,10 @@ import {CellArea, CellIndex} from '../../def/cell-area.ts';
 import {ViewUtil} from '../../utils/view.util.ts';
 import {CellIndexUtil} from '../../utils/cell-index.util.ts';
 import cacheStore from '../../store/cache.store.ts';
+import wrapStore from '../../store/wrap.store.ts';
+import {Cell} from '../../def/cell.ts';
+import {CommonUtil} from '../../utils/common.util.ts';
+import EditUtil from '../../utils/edit.util.ts';
 
 export default class MouseContentPlugin extends BasePlugin {
 
@@ -29,6 +33,8 @@ export default class MouseContentPlugin extends BasePlugin {
     this.$target.addEventListener('mousedown', this.handleMousedownEvent.bind(this));
     this.$target.addEventListener('mouseup', this.handleMouseupEvent.bind(this));
     this.$target.addEventListener('mousemove', this.handleMousemoveSelectEvent.bind(this));
+
+    this.$target.addEventListener('dblclick', this.handleMouseDblclickEvent.bind(this));
   }
 
   private isEventInCell(event: { offsetX: number, offsetY: number }): CellIndex | null {
@@ -120,6 +126,11 @@ export default class MouseContentPlugin extends BasePlugin {
     controlStore.cellContent.drawCell(ri + 1, ci - 1);
     controlStore.cellContent.drawCell(ri + 1, ci);
     controlStore.cellContent.drawCell(ri + 1, ci + 1);
+    // controlStore.cellContent.drawCell(ri, ci);
+    // setTimeout(() => {
+    //   controlStore.cellContent.drawCell(ri, ci);
+    // }, 1);
+    // ViewUtil.refreshView()
   }
 
   private revertCells(selectCell: CellArea) {
@@ -139,16 +150,18 @@ export default class MouseContentPlugin extends BasePlugin {
   }
 
   private handleMousedownEvent(event: MouseEvent) {
+    EditUtil.endEdit();
     const cellIndex = this.isEventInCell(event);
     selectArea.deSelectedCellArea = null;
     if (cellIndex) {
       ViewUtil.refreshView();
       // const [cri, cci] = selectArea.selectCell;
       selectArea.selectedCellAreas = selectArea.selectedCellAreas || [];
-      selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
+      // selectArea.selectedCellAreas.forEach(selectArea => this.revertCells(selectArea));
+      // ViewUtil.refreshView(ViewUtil.drawSelectCell)
       if (!event.ctrlKey) {
         selectArea.selectedCell = cellIndex;
-        selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex]];
+        selectArea.selectedCellAreas = [[...cellIndex, ...cellIndex, ...cellIndex]];
       } else {
         // 是否反向选择
         operate.selectCellState.deselect = selectArea.selectedCellAreas.findIndex(item => CellAreaUtil.cellAreaContainsCell(item, cellIndex)) >= 0;
@@ -232,6 +245,10 @@ export default class MouseContentPlugin extends BasePlugin {
       operate.selectCellState.beginCell = [-1, -1];
       operate.selectCellState.endCell = [-1, -1];
     }
+  }
+
+  private handleMouseDblclickEvent(event: MouseEvent) {
+    EditUtil.beginEditCell();
   }
 
 }

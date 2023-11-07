@@ -1,6 +1,9 @@
 import state from '../store/state.ts';
 import {Point} from '../model/point.ts';
 import {Style} from '../def/style.ts';
+import {CellArea} from '../def/cell-area.ts';
+import {Cell} from '../def/cell.ts';
+import {Area} from '../model/area.ts';
 
 export class CanvasUtil {
 
@@ -55,6 +58,20 @@ export class CanvasUtil {
       ctx.strokeStyle = style.strokeStyle || '#aeaeae';
       ctx.strokeRect(x + .5, y + .5, width, height);
     }
+  }
+
+  public static drawText(ctx: CanvasRenderingContext2D, point: Point, cell: Cell): void {
+    if (!cell) {
+      return ;
+    }
+    if (!cell.t) {
+      return ;
+    }
+
+    ctx.fillStyle = cell.fc || '#000000';
+    ctx.font = cell.fs || '12px';
+    ctx.textAlign = 'start';
+    ctx.fillText(cell.t, point.x + 2, point.y + 12);
   }
 
   /**

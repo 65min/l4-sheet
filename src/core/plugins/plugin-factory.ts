@@ -1,5 +1,27 @@
 import BasePlugin from './base-plugin.ts';
+import {PluginType} from './plugin-type.enum.ts';
+import ToolbarPlugin from './toolbar-plugin.ts';
+import CanvasPlugin from './canvas-plugin.ts';
+import TextBoxPlugin from './text-box.plugin.ts';
+import ClickPlugin from './event/click.plugin.ts';
+import DragPlugin from './event/drag.plugin.ts';
+import MouseScrollbarPlugin from './event/mouse-scrollbar.plugin.ts';
+import MouseHeaderPlugin from './event/mouse-header.plugin.ts';
+import MouseContentPlugin from './event/mouse-content.plugin.ts';
 
+
+export type PluginTypeMap = {
+  // [key in PluginType]: BasePlugin;
+  'Core': BasePlugin;
+  'ToolBar': ToolbarPlugin;
+  'Canvas': CanvasPlugin;
+  'TextBox': TextBoxPlugin;
+  'EventClick': ClickPlugin;
+  'EventDrag': DragPlugin;
+  'EventMouseScrollbar': MouseScrollbarPlugin;
+  'EventMouseHeader': MouseHeaderPlugin;
+  'EventMouseContent': MouseContentPlugin;
+};
 
 export default class PluginFactory {
 
@@ -35,5 +57,9 @@ export default class PluginFactory {
 
     this.plugins[existPluginIndex].destroy();
     this.plugins.splice(existPluginIndex, 1);
+  }
+
+  public get<T extends PluginType>(type: T): PluginTypeMap[T] {
+    return this.plugins.find(item => item.type === type) as PluginTypeMap[T];
   }
 }

@@ -12,7 +12,7 @@ interface CacheStore {
   ra: string;
 
   mergeCellIndexes: MergeCellIndex;
-
+  editCellIndex: CellIndex;
 }
 
 const cacheStore: CacheStore = {
@@ -23,6 +23,7 @@ const cacheStore: CacheStore = {
   raf: null,
   ra: CommonUtil.randomAlphabet(6),
   mergeCellIndexes: {},
+  editCellIndex: null
 }
 
 window.cacheStore = cacheStore;

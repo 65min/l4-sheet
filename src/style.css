@@ -3,6 +3,10 @@ body {
   margin: 0;
 }
 
+.l4 {
+  position: relative;
+}
+
 .l4__toolbar-wrap {
   height: 64px;
   background-color: #eeeeee;
@@ -13,4 +17,12 @@ body {
 
 .l4__content-wrap {
   overflow: hidden;
+  position: relative;
 }
+
+/*.l4__textarea-wrap {*/
+/*  overflow: hidden;*/
+/*  position: absolute;*/
+/*  left: 0;*/
+/*  top: 0;*/
+/*}*/

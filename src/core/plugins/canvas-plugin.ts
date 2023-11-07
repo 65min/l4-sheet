@@ -15,34 +15,6 @@ import {SelectAreaDrawer} from '../draw/select-area.draw.ts';
 import areaStore from '../store/area.store.ts';
 import {CacheUtil} from '../utils/cache.util.ts';
 
-//
-// (function () {
-//   if (window.customElements.get('l4-canvas') === undefined) {
-//
-//     const template = document.createElement('template');
-//     template.innerHTML = `
-//       <canvas class="l4__canvas" width="800" height="600">
-//       浏览器不支持canvas特性
-//       </canvas>
-//     `;
-//
-//     class Toolbar extends HTMLElement {
-//
-//       constructor() {
-//         super();
-//         const shadow = this.attachShadow( { mode: 'closed' } );
-//         const content = template.content.cloneNode(true);
-//         shadow.append(content);
-//       }
-//
-//     }
-//
-//     window.customElements.define('l4-canvas', Toolbar);
-//   }
-//
-// })();
-
-
 export default class CanvasPlugin extends BasePlugin {
 
   type = PluginType.Canvas;

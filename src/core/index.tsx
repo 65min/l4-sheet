@@ -1,4 +1,4 @@
-import PluginFactory from './plugins/plugin-factory.ts';
+import PluginFactory, {PluginTypeMap} from './plugins/plugin-factory.ts';
 import ToolbarPlugin from './plugins/toolbar-plugin.ts';
 import BasePlugin from './plugins/base-plugin.ts';
 import {PluginType} from './plugins/plugin-type.enum.ts';
@@ -10,7 +10,52 @@ import MouseScrollbarPlugin from './plugins/event/mouse-scrollbar.plugin.ts';
 import store from './store';
 import MouseHeaderPlugin from './plugins/event/mouse-header.plugin.ts';
 import MouseContentPlugin from './plugins/event/mouse-content.plugin.ts';
+import TextBoxPlugin from './plugins/text-box.plugin.ts';
+import EventGlobalPlugin from './plugins/event/global.plugin.ts';
 
+//
+// // interface PluginTypeMap {
+// //   ["a": HTMLAnchorElement;
+// //   "abbr": HTMLElement;
+// //   "address": HTMLElement;
+// //   "area": HTMLAreaElement;
+// //   "article": HTMLElement;
+// //   "aside": HTMLElement;
+// //   "audio": HTMLAudioElement;
+// //   "b": HTMLElement;
+// //   "base": HTMLBaseElement;
+// //   "bdi": HTMLElement;
+// //
+// //   'TextBox': TextBoxPlugin;]
+// // }
+//
+//
+// // Core = 'Core',
+// //   ToolBar = 'ToolBar',
+// //   Canvas = 'Canvas',
+// //   TextBox = 'TextBox',
+// //   Event = 'Event',
+// //   EventClick = 'EventClick',
+// //   EventDrag = 'EventDrag',
+// //   EventMouse = 'EventMouse',
+// //   EventMouseScrollbar = 'EventMouseScrollbar',
+// //   EventMouseHeader = 'EventMouseHeader',
+// //   EventMouseContent = 'EventMouseContent',
+// //
+// //   SelectArea = 'SelectArea'
+//
+// type PluginTypeMap = {
+//   // [key in PluginType]: BasePlugin;
+//   'Core': BasePlugin;
+//   'ToolBar': ToolbarPlugin;
+//   'Canvas': CanvasPlugin;
+//   'TextBox': TextBoxPlugin;
+//   'EventClick': ClickPlugin;
+//   'EventDrag': DragPlugin;
+//   'EventMouseScrollbar': MouseScrollbarPlugin;
+//   'EventMouseHeader': MouseHeaderPlugin;
+//   'EventMouseContent': MouseContentPlugin;
+// };
 
 export default class Wrap extends BasePlugin {
 
@@ -25,8 +70,6 @@ export default class Wrap extends BasePlugin {
 
   init(): void {
 
-
-
     this.$target!.innerHTML = `
       <div class="l4__toolbar-wrap"></div>
       <div class="l4__content-wrap"></div>
@@ -34,11 +77,13 @@ export default class Wrap extends BasePlugin {
 
     this.pluginFactory.add(new ToolbarPlugin('.l4__toolbar-wrap'));
     this.pluginFactory.add(new CanvasPlugin('.l4__content-wrap'));
+    this.pluginFactory.add(new TextBoxPlugin('.l4'));
     this.pluginFactory.add(new ClickPlugin(store.$canvas));
     this.pluginFactory.add(new DragPlugin(store.$canvas));
     this.pluginFactory.add(new MouseScrollbarPlugin(store.$canvas));
     this.pluginFactory.add(new MouseHeaderPlugin(store.$canvas));
     this.pluginFactory.add(new MouseContentPlugin(store.$canvas));
+    this.pluginFactory.add(new EventGlobalPlugin());
 
   }
 
@@ -65,6 +110,10 @@ export default class Wrap extends BasePlugin {
     }
 
     return {h: true, v: true};
+  }
+
+  public getPlugin<T extends PluginType>(type: T): PluginTypeMap[T] {
+    return this.pluginFactory.get(type);
   }
 
 }

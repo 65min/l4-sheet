@@ -2,6 +2,7 @@ import './style.css'
 
 // import initToolbar from './core/toolbar.ts';
 import Wrap from './core';
+import wrapStore from './core/store/wrap.store.ts';
 
 // document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 //   <div>
@@ -28,6 +29,8 @@ document.querySelector('#app')!.innerHTML = `
 </div>
 `
 
-new Wrap('.l4').init();
+wrapStore.wrap = new Wrap('.l4');
+
+wrapStore.wrap.init();
 
 // setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)

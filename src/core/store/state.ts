@@ -1,3 +1,4 @@
+import {Cell} from '../def/cell.ts';
 
 
 export type MergeCell = [number, number, number, number]; // 分别为rowindex、colindex、rowspan、colspan
@@ -26,6 +27,8 @@ interface State {
   rows: {[key: number]: {h?: number}};
 
   mergeCells: MergeCell[];
+
+  cells: {[key: number]: {[key: number]: Cell}}
 }
 
 const state: State = {
@@ -53,7 +56,9 @@ const state: State = {
   cols: {},
   rows: {},
   
-  mergeCells: []
+  mergeCells: [],
+
+  cells: {0: {0: {bc: '#00bcd4'}}}
 }
 
 window.state = state;

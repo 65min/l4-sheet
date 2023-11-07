@@ -7,6 +7,8 @@ import areaStore from '../store/area.store.ts';
 import cacheStore from '../store/cache.store.ts';
 import {CellIndex} from '../def/cell-area.ts';
 import {CellIndexUtil} from '../utils/cell-index.util.ts';
+import {Cell} from '../def/cell.ts';
+import {Point} from '../model/point.ts';
 
 export class CellContentDrawer extends BaseDrawer {
 
@@ -356,8 +358,23 @@ export class CellContentDrawer extends BaseDrawer {
           continue;
         }
 
+        let cell: Cell = {};
+        if (state.cells[i]) {
+          cell = state.cells[i][j] || {};
+        }
+
         this.areas[i][j] = new Area(x, y, x + cellWidth, y + cellHeight);
-        CanvasUtil.drawRect(this.$ctx, x, y, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+        CanvasUtil.drawRect(this.$ctx, x, y, cellWidth, cellHeight, {fillStyle: cell.bc || '#ffffff', strokeStyle: '#aeaeae'});
+        // CanvasUtil.drawText(this.$ctx, Point.build(x, y), cell);
+      }
+    }
+    for (let i = this.beginRow; i <= this.endRow; i ++) {
+      for (let j = this.beginCol; j <= this.endCol; j ++) {
+        let cell: Cell = {};
+        if (state.cells[i]) {
+          cell = state.cells[i][j] || {};
+        }
+        CanvasUtil.drawText(this.$ctx, Point.build(this.areas[i][j].x1, this.areas[i][j].y1), cell);
       }
     }
 
@@ -428,6 +445,11 @@ export class CellContentDrawer extends BaseDrawer {
     let cellWidth = 0;
     let cellHeight = 0;
     const targetMergeCell = state.mergeCells.find((item: MergeCell) => item[0] === ri && item[1] === ci);
+    let cell: Cell = {};
+    if (state.cells[ri]) {
+      cell = state.cells[ri][ci] || {};
+    }
+
     if (targetMergeCell) {
       const [, , rs, cs]  = targetMergeCell;
       for (let m = 0; m < rs; m++) {
@@ -437,9 +459,11 @@ export class CellContentDrawer extends BaseDrawer {
         cellWidth = cellWidth + cacheStore.colWidthArr[ci + n];
       }
 
-      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cellWidth, cellHeight, {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cellWidth, cellHeight, {fillStyle: cell.bc || '#ffffff', strokeStyle: '#aeaeae'});
+      CanvasUtil.drawText(this.$ctx, Point.build(area.x1, area.y1), cell);
     } else {
-      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cacheStore.colWidthArr[ci], cacheStore.rowHeightArr[ri], {fillStyle: '#ffffff', strokeStyle: '#aeaeae'});
+      CanvasUtil.drawRect(this.$ctx, area.x1, area.y1, cacheStore.colWidthArr[ci], cacheStore.rowHeightArr[ri], {fillStyle: cell.bc || '#ffffff', strokeStyle: '#aeaeae'});
+      CanvasUtil.drawText(this.$ctx, Point.build(area.x1, area.y1), cell);
     }
   }
 }

@@ -18,6 +18,12 @@ import {CellArea} from '../def/cell-area.ts';
       <style>
         .l4--icon-wrap {
             padding: 5px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Chrome/Safari/Opera */
+            -khtml-user-select: none; /* Konqueror */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently not supported by any browser */
         }
         .l4--icon-item {
             padding: 2px 5px;
